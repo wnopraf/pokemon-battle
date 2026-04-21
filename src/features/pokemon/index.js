@@ -1,3 +1,3 @@
-export { usePokemonList } from './usePokemonList.js'
-export { usePokemonDetail } from './usePokemonDetail.js'
-export { usePokemonType } from './usePokemonType.js'
+export { usePokemonList } from "./hooks/usePokemonList.js";
+export { usePokemonDetail } from "./hooks/usePokemonDetail.js";
+export { usePokemonType } from "./hooks/usePokemonType.js";
