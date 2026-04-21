@@ -1,7 +1,7 @@
 export const pokemonKeys = {
   all: ["pokemon"],
 
-  list: (limit, offset) => [...pokemonKeys.lists(), limit, offset],
+  list: (limit, offset) => [...pokemonKeys.all, "list", limit, offset],
   type: () => [...pokemonKeys.all, "type"],
-  detail: (name) => [...pokemonKeys.details(), name],
+  detail: (id) => [...pokemonKeys.all, "detail", id],
 };
