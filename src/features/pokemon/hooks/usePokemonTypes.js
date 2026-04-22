@@ -6,7 +6,7 @@ import { mapPokemonTypeList } from "../pokemon.adapters.js";
 export const usePokemonTypes
  = () => {
   return useQuery({
-    queryKey: pokemonKeys.type(),
+    queryKey: pokemonKeys.types(),
     queryFn: async () => {
       const response = await pokemonApi.getPokemonTypes();
       return mapPokemonTypeList(response);

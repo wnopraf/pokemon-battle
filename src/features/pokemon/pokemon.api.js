@@ -18,7 +18,14 @@ export const getPokemonList = async (limit = 20, offset = 0) => {
   return response.json();
 };
 
-export const getPokemonTypes = async () => {
+export const getPokemonByType = async (type) => {
+  const response = await fetch(`${POKEAPI_BASE_URL}/type/${type}`);
+  if (!response.ok) {
+    throw new Error(`Type ${type} not found`);
+  }
+  return response.json();
+};
+export const getAllPokemonTypes = async () => {
   const response = await fetch(`${POKEAPI_BASE_URL}/type`);
   if (!response.ok) {
     throw new Error("Failed to fetch pokemon types");
