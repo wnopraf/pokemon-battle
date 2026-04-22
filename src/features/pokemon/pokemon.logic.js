@@ -12,3 +12,22 @@ export function shuffleArray(array) {
 export function sortByAttackDesc(pokemons) {
   return [...pokemons].sort((a, b) => b.attack - a.attack);
 }
+export function applyPokemonFilters({ pokemons, search, sort, shuffle }) {
+  let result = pokemons;
+
+  result = filterPokemonsByName(result, search);
+
+  if (sort === "attack") {
+    result = sortPokemonsByAttackDesc(result);
+  }
+
+  if (sort === "name") {
+    result = sortPokemonsByName(result);
+  }
+
+  if (shuffle) {
+    result = shufflePokemons(result);
+  }
+
+  return result;
+}
