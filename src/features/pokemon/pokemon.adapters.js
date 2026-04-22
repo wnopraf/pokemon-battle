@@ -24,3 +24,8 @@ export function mapPokemon(apiPokemon) {
     types: apiPokemon.types.map((t) => t.type.name),
   };
 }
+export function mapPokemonTypeList(apiResponse) {
+  return apiResponse.results
+    .map((t) => t.name)
+    .filter((t) => t !== "unknown" && t !== "shadow");
+}
