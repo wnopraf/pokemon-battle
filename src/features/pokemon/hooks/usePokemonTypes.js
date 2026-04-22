@@ -3,7 +3,8 @@ import * as pokemonApi from "../pokemon.api.js";
 import { pokemonKeys } from "../pokemon.keys.js";
 import { mapPokemonTypeList } from "../pokemon.adapters.js";
 
-export const usePokemonType = () => {
+export const usePokemonTypes
+ = () => {
   return useQuery({
     queryKey: pokemonKeys.type(),
     queryFn: async () => {

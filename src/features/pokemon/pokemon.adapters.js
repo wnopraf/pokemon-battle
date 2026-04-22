@@ -29,3 +29,16 @@ export function mapPokemonTypeList(apiResponse) {
     .map((t) => t.name)
     .filter((t) => t !== "unknown" && t !== "shadow");
 }
+export function mapPokemonByType(apiResponse) {
+  return apiResponse.pokemon.map((entry) => {
+    const { name, url } = entry.pokemon;
+
+    const id = url.split("/").filter(Boolean).pop();
+
+    return {
+      id: Number(id),
+      name,
+      image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+    };
+  });
+}
