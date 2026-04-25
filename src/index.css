@@ -1,1 +1,119 @@
 @import "tailwindcss";
+
+:root {
+  /* BRAND */
+  --blue-500: #4a90e2;
+  --blue-600: #3b7ac4;
+
+  /* GRAYS */
+  --gray-50: #f8f9fa;
+  --gray-100: #f1f5f9;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --gray-900: #1f2933;
+
+  /* STATES */
+  --green-500: #22c55e;
+  --red-500: #ef4444;
+  --yellow-500: #f59e0b;
+
+  /* POKEMON TYPES */
+  --type-fire: #f97316;
+  --type-water: #3b82f6;
+  --type-grass: #22c55e;
+  --type-electric: #eab308;
+  --type-psychic: #a855f7;
+}
+
+:root {
+  /* BACKGROUNDS */
+  --bg-app: var(--gray-50);
+  --bg-surface: #ffffff;
+  --bg-surface-hover: var(--gray-100);
+
+  /* TEXT */
+  --text-primary: var(--gray-900);
+  --text-secondary: var(--gray-500);
+  --text-inverse: #ffffff;
+
+  /* BORDER */
+  --border-default: var(--gray-200);
+  --border-strong: var(--gray-300);
+
+  /* BRAND */
+  --brand-primary: var(--blue-500);
+  --brand-primary-hover: var(--blue-600);
+
+  /* STATES */
+  --state-success: var(--green-500);
+  --state-danger: var(--red-500);
+  --state-warning: var(--yellow-500);
+
+  /* RADIUS */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* SHADOW */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* shadcn variables */
+:root {
+  /* BASE */
+  --background: var(--bg-app);
+  --foreground: var(--text-primary);
+
+  /* PRIMARY */
+  --primary: var(--brand-primary);
+  --primary-foreground: var(--text-inverse);
+
+  /* CARD */
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+
+  /* BORDER / INPUT */
+  --border: var(--border-default);
+  --input: var(--border-default);
+
+  /* MUTED */
+  --muted: var(--bg-surface-hover);
+  --muted-foreground: var(--text-secondary);
+
+  /* ACCENT */
+  --accent: var(--bg-surface-hover);
+  --accent-foreground: var(--text-primary);
+
+  /* DESTRUCTIVE */
+  --destructive: var(--state-danger);
+  --destructive-foreground: #ffffff;
+
+  /* RING (focus) */
+  --ring: var(--brand-primary);
+}
+
+.dark {
+  /* BACKGROUNDS */
+  --bg-app: #111827;
+  --bg-surface: #1f2937;
+  --bg-surface-hover: #374151;
+
+  /* TEXT */
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+
+  /* BORDER */
+  --border-default: #374151;
+
+  /* BRAND (opcional ajustar) */
+  --brand-primary: #60a5fa;
+}
+
+body {
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: Inter, system-ui, sans-serif;
+}
