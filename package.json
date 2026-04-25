@@ -8,10 +8,12 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "jest"
+    "test": "jest",
+    "stories": "ladle serve"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.56.2",
+    "lucide-react": "^1.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
@@ -21,6 +23,7 @@
     "@babel/preset-env": "^7.25.8",
     "@babel/preset-react": "^7.25.7",
     "@esbuild/darwin-arm64": "^0.28.0",
+    "@ladle/react": "^5.1.1",
     "@rollup/rollup-darwin-arm64": "^4.60.2",
     "@tailwindcss/vite": "^4.2.2",
     "@testing-library/jest-dom": "^6.5.0",
@@ -32,6 +35,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^30.3.0",
     "jsdom": "^25.0.1",
+    "ladle": "^0.0.0",
     "tailwindcss": "^4.2.2",
     "vite": "^5.4.8"
   }
