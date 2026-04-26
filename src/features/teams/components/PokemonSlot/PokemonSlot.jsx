@@ -1,6 +1,6 @@
 import { Plus, X } from "lucide-react";
 
-export function PokemonSlot({ pokemon, onClick, onRemove, index }) {
+export function PokemonSlot({ pokemon, onRemove, index }) {
   if (pokemon) {
     return (
       <div className="relative group">
@@ -25,11 +25,8 @@ export function PokemonSlot({ pokemon, onClick, onRemove, index }) {
   }
 
   return (
-    <button
-      onClick={onClick}
-      className="aspect-square rounded-xl bg-white border-2 border-dashed border-[var(--gray-300)] flex items-center justify-center hover:border-[var(--blue-500)] hover:bg-[var(--gray-50)] hover:shadow-lg transition-all cursor-pointer group"
-    >
-      <Plus className="w-10 h-10 text-[var(--gray-400)] group-hover:text-[var(--blue-500)] transition-colors" />
-    </button>
+    <div className="aspect-square rounded-xl bg-white border-2 border-dashed border-[var(--gray-300)] flex items-center justify-center">
+      <Plus className="w-10 h-10 text-[var(--gray-400)]" />
+    </div>
   );
 }

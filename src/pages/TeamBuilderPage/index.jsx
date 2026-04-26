@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,9 +41,9 @@ export function TeamBuilderPage() {
     }
   }, [draftTeam?.id, startDraft]);
 
-  const handleAddPokemon = (slot) => {
+  const handleAddPokemon = () => {
     if (!draftTeam?.id) return;
-    openSearch({ team: draftTeam.id, slot });
+    openSearch({ team: draftTeam.id });
   };
 
   const handleRemovePokemon = (index) => {
@@ -93,6 +94,8 @@ export function TeamBuilderPage() {
     saveDraft();
     alert("Equipo guardado correctamente");
   };
+
+  const isTeamFull = (draftTeam?.pokemons?.length ?? 0) >= 6;
 
   const renderModalStep = () => {
     if (currentStep === "detail") {
@@ -154,12 +157,24 @@ export function TeamBuilderPage() {
                 <PokemonSlot
                   key={index}
                   pokemon={draftTeam?.pokemons?.[index]}
-                  onClick={() => handleAddPokemon(index)}
                   onRemove={handleRemovePokemon}
                   index={index}
                 />
               ))}
             </div>
+          </div>
+
+          <div className="mb-6">
+            <Button
+              type="button"
+              onClick={handleAddPokemon}
+              disabled={isTeamFull}
+              variant="outline"
+              className="h-11 w-full border-(--blue-300) text-(--blue-600) hover:bg-(--blue-50) hover:border-(--blue-500)"
+            >
+              <Plus className="size-4" />
+              {isTeamFull ? "Equipo completo" : "Añadir Pokémon"}
+            </Button>
           </div>
 
           <Button
