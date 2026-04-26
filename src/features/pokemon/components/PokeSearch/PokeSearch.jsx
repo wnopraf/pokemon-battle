@@ -48,8 +48,8 @@ export function PokeSearch() {
               Encuentra el próximo Pokémon
             </p>
             <p className="text-sm text-(--gray-500)">
-              Busca por nombre o afina la selección por tipo antes de añadirlo al
-              equipo.
+              Busca por nombre o afina la selección por tipo antes de añadirlo
+              al equipo.
             </p>
           </div>
 

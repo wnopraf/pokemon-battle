@@ -110,7 +110,11 @@ const eevee = { id: 133, name: "eevee", image: "eevee.png" };
 const mew = { id: 151, name: "mew", image: "mew.png" };
 const mewtwo = { id: 150, name: "mewtwo", image: "mewtwo.png" };
 
-function resetStore({ draftTeam, teams = [], draftPokemonSort = "manual" } = {}) {
+function resetStore({
+  draftTeam,
+  teams = [],
+  draftPokemonSort = "manual",
+} = {}) {
   useTeamsStore.setState({
     draftTeam: draftTeam ?? {
       id: "draft-team",
@@ -152,7 +156,9 @@ describe("TeamBuilderPage", () => {
       expect(
         screen.getByRole("heading", { name: /crear equipo/i }),
       ).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /cancelar/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /cancelar/i }),
+      ).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /guardar equipo/i }),
       ).toBeInTheDocument();
@@ -176,7 +182,9 @@ describe("TeamBuilderPage", () => {
       expect(
         screen.getByRole("button", { name: /guardar cambios/i }),
       ).toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: /cancelar/i })).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: /cancelar/i }),
+      ).not.toBeInTheDocument();
       expect(screen.getByDisplayValue("Equipo Fuego")).toBeInTheDocument();
     });
 
@@ -238,7 +246,9 @@ describe("TeamBuilderPage", () => {
 
       renderPage();
 
-      const addButton = screen.getByRole("button", { name: /equipo completo/i });
+      const addButton = screen.getByRole("button", {
+        name: /equipo completo/i,
+      });
       expect(addButton).toBeDisabled();
     });
   });
@@ -283,7 +293,9 @@ describe("TeamBuilderPage", () => {
       renderPage();
 
       expect(
-        screen.getByText(/el arrastre se desactiva mientras el orden automático/i),
+        screen.getByText(
+          /el arrastre se desactiva mientras el orden automático/i,
+        ),
       ).toBeInTheDocument();
     });
 
@@ -302,7 +314,9 @@ describe("TeamBuilderPage", () => {
       renderPage();
 
       expect(
-        screen.queryByText(/el arrastre se desactiva mientras el orden automático/i),
+        screen.queryByText(
+          /el arrastre se desactiva mientras el orden automático/i,
+        ),
       ).not.toBeInTheDocument();
     });
   });
@@ -321,7 +335,9 @@ describe("TeamBuilderPage", () => {
 
       renderPage();
 
-      const saveButton = screen.getByRole("button", { name: /guardar equipo/i });
+      const saveButton = screen.getByRole("button", {
+        name: /guardar equipo/i,
+      });
       await userEvent.click(saveButton);
 
       expect(mockToast.error).toHaveBeenCalledWith(
@@ -343,7 +359,9 @@ describe("TeamBuilderPage", () => {
 
       renderPage();
 
-      const saveButton = screen.getByRole("button", { name: /guardar equipo/i });
+      const saveButton = screen.getByRole("button", {
+        name: /guardar equipo/i,
+      });
       await userEvent.click(saveButton);
 
       expect(mockToast.error).toHaveBeenCalledWith(
@@ -365,7 +383,9 @@ describe("TeamBuilderPage", () => {
 
       renderPage();
 
-      const saveButton = screen.getByRole("button", { name: /guardar equipo/i });
+      const saveButton = screen.getByRole("button", {
+        name: /guardar equipo/i,
+      });
       await userEvent.click(saveButton);
 
       expect(mockToast.success).toHaveBeenCalledWith(
@@ -658,7 +678,9 @@ describe("TeamBuilderPage", () => {
       expect(
         screen.getByRole("heading", { name: /pokémon duplicado/i }),
       ).toBeInTheDocument();
-      expect(screen.getByText(/pokemon-25 ya está en el equipo/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/pokemon-25 ya está en el equipo/i),
+      ).toBeInTheDocument();
       expect(useTeamsStore.getState().draftTeam.pokemons).toHaveLength(1);
       expect(screen.queryByTestId("poke-search-modal")).not.toBeInTheDocument();
       expect(mockToast.success).not.toHaveBeenCalled();
@@ -708,7 +730,9 @@ describe("TeamBuilderPage", () => {
 
       expect(screen.getByTestId("detail-step")).toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole("button", { name: /cerrar modal/i }));
+      await userEvent.click(
+        screen.getByRole("button", { name: /cerrar modal/i }),
+      );
 
       expect(screen.queryByTestId("poke-search-modal")).not.toBeInTheDocument();
     });
@@ -722,7 +746,9 @@ describe("TeamBuilderPage", () => {
       await userEvent.click(
         screen.getByRole("button", { name: /seleccionar pikachu/i }),
       );
-      await userEvent.click(screen.getByRole("button", { name: /cerrar modal/i }));
+      await userEvent.click(
+        screen.getByRole("button", { name: /cerrar modal/i }),
+      );
 
       await userEvent.click(
         screen.getByRole("button", { name: /añadir pokémon/i }),

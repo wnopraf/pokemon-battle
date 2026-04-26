@@ -49,7 +49,9 @@ export function PokeSearchModal({
 
         <div
           className={cn(
-            isConfirmStep ? "overflow-visible" : "h-full min-h-0 overflow-hidden",
+            isConfirmStep
+              ? "overflow-visible"
+              : "h-full min-h-0 overflow-hidden",
           )}
         >
           {children || <PokeSearch />}

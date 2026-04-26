@@ -1,16 +1,23 @@
 import { GripVertical, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function PokemonSlot({ pokemon, onRemove, isDraggable = true, isDragging = false }) {
+export function PokemonSlot({
+  pokemon,
+  onRemove,
+  isDraggable = true,
+  isDragging = false,
+}) {
   if (pokemon) {
     return (
       <div className="relative group">
-        <div className={cn(
+        <div
+          className={cn(
             "aspect-square rounded-[1rem] bg-white border-2 border-(--gray-200) flex items-center justify-center overflow-hidden transition-all duration-300 ease-out shadow-sm",
             isDraggable
               ? "cursor-grab active:cursor-grabbing hover:border-(--blue-500) hover:shadow-lg"
               : "cursor-default",
-          )}>
+          )}
+        >
           <img
             src={pokemon.image}
             alt={pokemon.name}
@@ -19,12 +26,14 @@ export function PokemonSlot({ pokemon, onRemove, isDraggable = true, isDragging 
           />
         </div>
         {isDraggable ? (
-          <div className={cn(
-            "absolute top-2 left-2 rounded-md p-0.5 shadow-sm pointer-events-none transition-all duration-200",
-            isDragging
-              ? "bg-(--blue-500) text-white scale-110"
-              : "bg-white/85 text-(--gray-500)"
-          )}>
+          <div
+            className={cn(
+              "absolute top-2 left-2 rounded-md p-0.5 shadow-sm pointer-events-none transition-all duration-200",
+              isDragging
+                ? "bg-(--blue-500) text-white scale-110"
+                : "bg-white/85 text-(--gray-500)",
+            )}
+          >
             <GripVertical className="w-3.5 h-3.5" />
           </div>
         ) : null}

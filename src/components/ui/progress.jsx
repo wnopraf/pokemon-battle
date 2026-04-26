@@ -25,10 +25,7 @@ function Progress({
   );
 }
 
-function ProgressTrack({
-  className,
-  ...props
-}) {
+function ProgressTrack({ className, ...props }) {
   return (
     <ProgressPrimitive.Track
       className={cn(
@@ -41,10 +38,7 @@ function ProgressTrack({
   );
 }
 
-function ProgressIndicator({
-  className,
-  ...props
-}) {
+function ProgressIndicator({ className, ...props }) {
   return (
     <ProgressPrimitive.Indicator
       data-slot="progress-indicator"
@@ -54,10 +48,7 @@ function ProgressIndicator({
   );
 }
 
-function ProgressLabel({
-  className,
-  ...props
-}) {
+function ProgressLabel({ className, ...props }) {
   return (
     <ProgressPrimitive.Label
       className={cn("text-sm font-medium", className)}
@@ -67,10 +58,7 @@ function ProgressLabel({
   );
 }
 
-function ProgressValue({
-  className,
-  ...props
-}) {
+function ProgressValue({ className, ...props }) {
   return (
     <ProgressPrimitive.Value
       className={cn(

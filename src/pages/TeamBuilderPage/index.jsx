@@ -176,14 +176,14 @@ export function TeamBuilderPage() {
             getInitialData: () => ({ type: "team-pokemon", index }),
             onDragStart: () => {
               setDragState({ sourceIndex: index, targetIndex: null });
-              document.body.style.cursor = 'grabbing';
+              document.body.style.cursor = "grabbing";
             },
             onDrop: () => {
               setDragState({ sourceIndex: null, targetIndex: null });
-              document.body.style.cursor = '';
+              document.body.style.cursor = "";
             },
             onDragEnd: () => {
-              document.body.style.cursor = '';
+              document.body.style.cursor = "";
             },
           }),
           dropCleanup,
@@ -361,26 +361,27 @@ export function TeamBuilderPage() {
                   Identidad del equipo
                 </p>
                 <p className="mt-1 text-sm leading-5.5 text-(--gray-500)">
-                  Ponle un nombre reconocible para distinguirlo fácilmente antes de entrar en combate.
+                  Ponle un nombre reconocible para distinguirlo fácilmente antes
+                  de entrar en combate.
                 </p>
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4.5">
                 <div className="w-full">
-              <label
-                htmlFor="teamName"
-                className="mb-2 block text-sm font-semibold text-(--gray-900)"
-              >
-                Nombre del equipo
-              </label>
-              <Input
-                id="teamName"
-                type="text"
-                placeholder="Ej: Equipo Fuego"
-                value={draftTeam?.name || ""}
-                onChange={(e) => setDraftTeamName(e.target.value)}
-                className="h-10 w-full border-(--gray-300) bg-white text-[15px] focus-visible:ring-(--blue-500)"
-              />
+                  <label
+                    htmlFor="teamName"
+                    className="mb-2 block text-sm font-semibold text-(--gray-900)"
+                  >
+                    Nombre del equipo
+                  </label>
+                  <Input
+                    id="teamName"
+                    type="text"
+                    placeholder="Ej: Equipo Fuego"
+                    value={draftTeam?.name || ""}
+                    onChange={(e) => setDraftTeamName(e.target.value)}
+                    className="h-10 w-full border-(--gray-300) bg-white text-[15px] focus-visible:ring-(--blue-500)"
+                  />
                 </div>
                 <div className="rounded-xl border border-(--gray-200) bg-white px-3 py-2 text-sm font-semibold text-(--gray-600) shadow-sm">
                   {draftTeam?.pokemons?.length ?? 0}/6 Pokémon
@@ -395,7 +396,8 @@ export function TeamBuilderPage() {
                     Alineación del equipo
                   </p>
                   <p className="mt-1 text-sm leading-5.5 text-(--gray-500)">
-                    Organiza tu formación y ajusta el orden para preparar la estrategia.
+                    Organiza tu formación y ajusta el orden para preparar la
+                    estrategia.
                   </p>
                 </div>
 
@@ -408,9 +410,13 @@ export function TeamBuilderPage() {
                       <SelectValue placeholder="Orden manual" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="manual">Manual (drag & drop)</SelectItem>
+                      <SelectItem value="manual">
+                        Manual (drag & drop)
+                      </SelectItem>
                       <SelectItem value="name">Nombre (A-Z)</SelectItem>
-                      <SelectItem value="attack">Ataque (mayor a menor)</SelectItem>
+                      <SelectItem value="attack">
+                        Ataque (mayor a menor)
+                      </SelectItem>
                       <SelectItem value="random">Aleatorio</SelectItem>
                     </SelectContent>
                   </Select>

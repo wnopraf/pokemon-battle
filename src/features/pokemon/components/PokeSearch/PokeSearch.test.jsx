@@ -10,7 +10,12 @@ import { usePokemonSearch } from "../../hooks/usePokemonSearch";
 jest.mock("../../hooks/usePokemonSearch");
 
 const mockPokemons = [
-  { id: 1, name: "bulbasaur", types: ["grass", "poison"], image: "bulbasaur.png" },
+  {
+    id: 1,
+    name: "bulbasaur",
+    types: ["grass", "poison"],
+    image: "bulbasaur.png",
+  },
   { id: 2, name: "charmander", types: ["fire"], image: "charmander.png" },
   { id: 3, name: "squirtle", types: ["water"], image: "squirtle.png" },
   { id: 4, name: "ivysaur", types: ["grass", "poison"], image: "ivysaur.png" },
@@ -56,8 +61,12 @@ describe("PokeSearch", () => {
 
       render(<PokeSearch />, { wrapper: createWrapper() });
 
-      expect(screen.getByPlaceholderText(/buscar pokémon por nombre/i)).toBeInTheDocument();
-      expect(screen.getByText(/encuentra el próximo pokémon/i)).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(/buscar pokémon por nombre/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/encuentra el próximo pokémon/i),
+      ).toBeInTheDocument();
       expect(screen.getByText(/filtrar por tipo/i)).toBeInTheDocument();
     });
 
@@ -76,7 +85,9 @@ describe("PokeSearch", () => {
 
       render(<PokeSearch />, { wrapper: createWrapper() });
 
-      const skeletons = document.querySelectorAll('[data-slot="skeleton"], .animate-pulse');
+      const skeletons = document.querySelectorAll(
+        '[data-slot="skeleton"], .animate-pulse',
+      );
       expect(skeletons.length).toBeGreaterThan(0);
     });
   });
@@ -97,7 +108,9 @@ describe("PokeSearch", () => {
       });
 
       render(<PokeSearch />, { wrapper: createWrapper() });
-      const searchInput = screen.getByPlaceholderText(/buscar pokémon por nombre/i);
+      const searchInput = screen.getByPlaceholderText(
+        /buscar pokémon por nombre/i,
+      );
 
       await userEvent.type(searchInput, "b");
 
@@ -218,10 +231,16 @@ describe("PokeSearch", () => {
 
       render(<PokeSearch />, { wrapper: createWrapper() });
 
-      expect(screen.getByRole("button", { name: /todos/i })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /grass/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /todos/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /grass/i }),
+      ).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /fire/i })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /water/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /water/i }),
+      ).toBeInTheDocument();
     });
 
     it("debería llamar a setSelectedType al hacer clic en un botón de tipo", async () => {
@@ -332,7 +351,9 @@ describe("PokeSearch", () => {
 
       render(<PokeSearch />, { wrapper: createWrapper() });
 
-      const skeletons = document.querySelectorAll('[data-slot="skeleton"], .animate-pulse');
+      const skeletons = document.querySelectorAll(
+        '[data-slot="skeleton"], .animate-pulse',
+      );
       expect(skeletons.length).toBeGreaterThan(0);
     });
   });
@@ -353,7 +374,9 @@ describe("PokeSearch", () => {
 
       render(<PokeSearch />, { wrapper: createWrapper() });
 
-      expect(screen.getByText(/no se pudieron cargar los pokémon/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/no se pudieron cargar los pokémon/i),
+      ).toBeInTheDocument();
     });
   });
 

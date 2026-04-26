@@ -140,10 +140,19 @@ export function PokemonDetailStep({ pokemonId, onBack, onContinue }) {
       </div>
 
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <Button type="button" variant="outline" onClick={onBack} className="h-10">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onBack}
+          className="h-10"
+        >
           Volver
         </Button>
-        <Button type="button" onClick={() => onContinue(pokemon.id)} className="h-10">
+        <Button
+          type="button"
+          onClick={() => onContinue(pokemon.id)}
+          className="h-10"
+        >
           Continuar
         </Button>
       </div>
