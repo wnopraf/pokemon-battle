@@ -26,7 +26,7 @@ function TypeSkeletonList() {
   );
 }
 
-export function PokeSearch({ onSelectPokemon }) {
+export function PokeSearch() {
   const {
     searchTerm,
     setSearchTerm,
@@ -118,7 +118,7 @@ export function PokeSearch({ onSelectPokemon }) {
           ))}
         </div>
       ) : (
-        <PokeGrid pokemons={results} onSelect={onSelectPokemon} />
+        <PokeGrid pokemons={results} />
       )}
     </div>
   );

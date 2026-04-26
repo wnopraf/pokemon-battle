@@ -8,18 +8,19 @@ import {
 
 import { PokeSearch } from "./PokeSearch";
 
-export function PokeSearchModal({ open, onOpenChange, onSelectPokemon }) {
+export function PokeSearchModal({ open, onOpenChange }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl p-6" showCloseButton>
         <DialogHeader>
           <DialogTitle>Buscar Pokémon</DialogTitle>
           <DialogDescription>
-            Filtra por nombre o tipo y selecciona un Pokémon para añadirlo al equipo.
+            Filtra por nombre o tipo y selecciona un Pokémon para añadirlo al
+            equipo.
           </DialogDescription>
         </DialogHeader>
 
-        <PokeSearch onSelectPokemon={onSelectPokemon} />
+        <PokeSearch />
       </DialogContent>
     </Dialog>
   );

@@ -1,6 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { usePokemonFeature } from "@/features/pokemon/providers";
 
-export function PokeGrid({ pokemons = [], onSelect }) {
+export function PokeGrid({ pokemons = [] }) {
+  const { onSelectPokemon } = usePokemonFeature();
+
   if (!pokemons.length) {
     return (
       <div className="rounded-xl border border-dashed border-(--gray-300) bg-(--gray-50) p-8 text-center text-sm text-(--gray-500)">
@@ -15,7 +18,7 @@ export function PokeGrid({ pokemons = [], onSelect }) {
         <Card
           key={pokemon.id}
           className="cursor-pointer border-(--gray-200) py-0 hover:border-(--blue-500) hover:shadow-md"
-          onClick={() => onSelect?.(pokemon)}
+          onClick={() => onSelectPokemon?.(pokemon)}
         >
           <CardContent className="flex flex-col items-center gap-2 p-3">
             <div className="h-18 w-18 rounded-lg bg-(--gray-50) p-1">
