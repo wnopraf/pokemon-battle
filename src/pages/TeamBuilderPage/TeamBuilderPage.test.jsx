@@ -108,7 +108,6 @@ const bulbasaur = { id: 1, name: "bulbasaur", image: "bulbasaur.png" };
 const squirtle = { id: 7, name: "squirtle", image: "squirtle.png" };
 const eevee = { id: 133, name: "eevee", image: "eevee.png" };
 const mew = { id: 151, name: "mew", image: "mew.png" };
-const mewtwo = { id: 150, name: "mewtwo", image: "mewtwo.png" };
 
 function resetStore({
   draftTeam,
