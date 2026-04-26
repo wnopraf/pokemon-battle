@@ -18,15 +18,19 @@ export function PokeSearchModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[min(96vw,760px)] max-w-none p-6 sm:max-w-none sm:h-[80vh] sm:max-h-[80vh]"
+        className="w-[min(96vw,880px)] max-w-none gap-6 p-5 sm:max-w-none sm:h-[84vh] sm:max-h-[84vh] sm:p-7 lg:p-8"
         showCloseButton
       >
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+        <DialogHeader className="max-w-2xl gap-3 pr-10">
+          <DialogTitle className="text-lg leading-tight sm:text-xl">
+            {title}
+          </DialogTitle>
+          <DialogDescription className="leading-6">
+            {description}
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="h-full min-h-0 overflow-y-auto pr-1">
+        <div className="h-full min-h-0 overflow-hidden">
           {children || <PokeSearch />}
         </div>
       </DialogContent>
