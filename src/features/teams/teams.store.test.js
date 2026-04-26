@@ -16,6 +16,7 @@ describe("teams.store", () => {
         updatedAt: 1,
       },
       teams: [],
+      draftPokemonSort: "manual",
       battleSelection: {
         teamAId: null,
         teamBId: null,
@@ -113,6 +114,28 @@ describe("teams.store", () => {
     const state = useTeamsStore.getState();
 
     expect(state.draftTeam.pokemons).toEqual([pikachu, charmander]);
+  });
+
+  it("sets draft pokemon sort mode when value is valid", () => {
+    const { setDraftPokemonSort } = useTeamsStore.getState();
+
+    setDraftPokemonSort("attack");
+    setDraftPokemonSort("random");
+
+    const state = useTeamsStore.getState();
+
+    expect(state.draftPokemonSort).toBe("random");
+  });
+
+  it("ignores draft pokemon sort mode when value is invalid", () => {
+    const { setDraftPokemonSort } = useTeamsStore.getState();
+
+    setDraftPokemonSort("name");
+    setDraftPokemonSort("speed");
+
+    const state = useTeamsStore.getState();
+
+    expect(state.draftPokemonSort).toBe("name");
   });
 
   it("clears draft and persists", () => {

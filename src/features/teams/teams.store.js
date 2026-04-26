@@ -63,9 +63,12 @@ const isDuplicatePokemon = (teams, draftTeamId, pokemonId) => {
   );
 };
 
+const DRAFT_SORT_OPTIONS = ["manual", "name", "attack", "random"];
+
 export const useTeamsStore = create((set, get) => ({
   draftTeam: initialDraft,
   teams: initialTeams,
+  draftPokemonSort: "manual",
   battleSelection: {
     teamAId: null,
     teamBId: null,
@@ -81,6 +84,11 @@ export const useTeamsStore = create((set, get) => ({
 
     persistDraft(nextDraft);
     set({ draftTeam: nextDraft });
+  },
+
+  setDraftPokemonSort: (sort) => {
+    if (!DRAFT_SORT_OPTIONS.includes(sort)) return;
+    set({ draftPokemonSort: sort });
   },
 
   setDraftTeamName: (name) => {
