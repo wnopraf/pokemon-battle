@@ -1,4 +1,5 @@
 import { PokeGrid } from "./PokeGrid";
+import { PokemonFeatureProvider } from "@/features/pokemon/providers";
 
 const mockPokemons = [
   {
@@ -54,6 +55,13 @@ const mockPokemons = [
 export default {
   title: "Features/Pokemon/PokeGrid",
   component: PokeGrid,
+  decorators: [
+    (Story) => (
+      <PokemonFeatureProvider onSelectPokemon={() => {}}>
+        <Story />
+      </PokemonFeatureProvider>
+    ),
+  ],
   parameters: {
     layout: "padded",
   },
