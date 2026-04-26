@@ -1,112 +1,199 @@
 import { create } from "zustand";
-import {
-  addPokemonToTeam,
-  removePokemonFromTeam,
-  canStartBattle,
-} from "./teams.logic";
+import { canStartBattle, removePokemonFromTeam } from "./teams.logic";
 
-const DRAFT_KEY = "teams-draft";
-const SAVED_KEY = "teams-saved";
+const DRAFT_KEY = "teams-draft-v2";
+const SAVED_KEY = "teams-saved-v2";
+
+const createTeamId = () => `team-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+const createEmptyDraftTeam = () => ({
+  id: createTeamId(),
+  name: "",
+  pokemons: [],
+  createdAt: Date.now(),
+  updatedAt: Date.now(),
+});
 
 const loadDraft = () => {
   try {
     const data = localStorage.getItem(DRAFT_KEY);
-    if (!data) return { draftTeamA: [], draftTeamB: [] };
-    return JSON.parse(data);
+    if (!data) return createEmptyDraftTeam();
+    const parsed = JSON.parse(data);
+
+    if (!parsed || !parsed.id || !Array.isArray(parsed.pokemons)) {
+      return createEmptyDraftTeam();
+    }
+
+    return parsed;
   } catch {
-    return { draftTeamA: [], draftTeamB: [] };
+    return createEmptyDraftTeam();
   }
 };
 
-const loadSaved = () => {
+const loadTeams = () => {
   try {
     const data = localStorage.getItem(SAVED_KEY);
-    if (!data) return { savedTeamA: [], savedTeamB: [] };
-    return JSON.parse(data);
+    if (!data) return [];
+
+    const parsed = JSON.parse(data);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed;
   } catch {
-    return { savedTeamA: [], savedTeamB: [] };
+    return [];
   }
 };
 
-const persistDraft = (draft) => {
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+const persistDraft = (draftTeam) => {
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(draftTeam));
 };
 
-const persistSaved = (saved) => {
-  localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
+const persistTeams = (teams) => {
+  localStorage.setItem(SAVED_KEY, JSON.stringify(teams));
 };
 
 const initialDraft = loadDraft();
-const initialSaved = loadSaved();
+const initialTeams = loadTeams();
+
+const isDuplicatePokemon = (teams, draftTeamId, pokemonId) => {
+  return teams.some(
+    (team) => team.id !== draftTeamId && team.pokemons.some((p) => p.id === pokemonId),
+  );
+};
 
 export const useTeamsStore = create((set, get) => ({
-  draftTeamA: initialDraft.draftTeamA || [],
-  draftTeamB: initialDraft.draftTeamB || [],
-  savedTeamA: initialSaved.savedTeamA || [],
-  savedTeamB: initialSaved.savedTeamB || [],
-
-  addPokemon: (team, pokemon) => {
-    const { draftTeamA, draftTeamB } = get();
-
-    const result = addPokemonToTeam({
-      teamA: draftTeamA,
-      teamB: draftTeamB,
-      team,
-      pokemon,
-    });
-
-    const newDraft = {
-      draftTeamA: result.teamA,
-      draftTeamB: result.teamB,
-    };
-
-    persistDraft(newDraft);
-    set(newDraft);
+  draftTeam: initialDraft,
+  teams: initialTeams,
+  battleSelection: {
+    teamAId: null,
+    teamBId: null,
   },
 
-  removePokemon: (team, pokemonId) => {
-    const { draftTeamA, draftTeamB } = get();
+  startDraft: (initial = {}) => {
+    const nextDraft = {
+      ...createEmptyDraftTeam(),
+      ...initial,
+      pokemons: Array.isArray(initial.pokemons) ? initial.pokemons : [],
+      updatedAt: Date.now(),
+    };
 
-    let newDraft;
+    persistDraft(nextDraft);
+    set({ draftTeam: nextDraft });
+  },
 
-    if (team === "A") {
-      newDraft = {
-        draftTeamA: removePokemonFromTeam(draftTeamA, pokemonId),
-        draftTeamB,
-      };
-    }
+  setDraftTeamName: (name) => {
+    const { draftTeam } = get();
+    const nextDraft = {
+      ...draftTeam,
+      name,
+      updatedAt: Date.now(),
+    };
 
-    if (team === "B") {
-      newDraft = {
-        draftTeamA,
-        draftTeamB: removePokemonFromTeam(draftTeamB, pokemonId),
-      };
-    }
+    persistDraft(nextDraft);
+    set({ draftTeam: nextDraft });
+  },
 
-    persistDraft(newDraft);
-    set(newDraft);
+  addPokemon: (teamId, pokemon) => {
+    const { draftTeam, teams } = get();
+    if (!pokemon || teamId !== draftTeam.id) return;
+    if (draftTeam.pokemons.some((p) => p.id === pokemon.id)) return;
+    if (isDuplicatePokemon(teams, draftTeam.id, pokemon.id)) return;
+    if (draftTeam.pokemons.length >= 6) return;
+
+    const nextDraft = {
+      ...draftTeam,
+      pokemons: [...draftTeam.pokemons, pokemon],
+      updatedAt: Date.now(),
+    };
+
+    persistDraft(nextDraft);
+    set({ draftTeam: nextDraft });
+  },
+
+  removePokemon: (teamId, pokemonId) => {
+    const { draftTeam } = get();
+    if (teamId !== draftTeam.id) return;
+
+    const nextDraft = {
+      ...draftTeam,
+      pokemons: removePokemonFromTeam(draftTeam.pokemons, pokemonId),
+      updatedAt: Date.now(),
+    };
+
+    persistDraft(nextDraft);
+    set({ draftTeam: nextDraft });
   },
 
   clearDraft: () => {
-    const empty = { draftTeamA: [], draftTeamB: [] };
-    persistDraft(empty);
-    set(empty);
+    const nextDraft = createEmptyDraftTeam();
+    persistDraft(nextDraft);
+    set({ draftTeam: nextDraft });
   },
 
-  saveTeams: () => {
-    const { draftTeamA, draftTeamB } = get();
+  saveDraft: () => {
+    const { draftTeam, teams } = get();
+    if (!draftTeam.name.trim() || draftTeam.pokemons.length === 0) return;
 
-    const saved = {
-      savedTeamA: draftTeamA,
-      savedTeamB: draftTeamB,
+    const existingIndex = teams.findIndex((team) => team.id === draftTeam.id);
+    let nextTeams;
+
+    if (existingIndex === -1) {
+      nextTeams = [...teams, draftTeam];
+    } else {
+      nextTeams = teams.map((team) =>
+        team.id === draftTeam.id
+          ? {
+              ...draftTeam,
+              updatedAt: Date.now(),
+            }
+          : team,
+      );
+    }
+
+    persistTeams(nextTeams);
+    set({ teams: nextTeams });
+  },
+
+  deleteTeam: (teamId) => {
+    const { teams, battleSelection } = get();
+    const nextTeams = teams.filter((team) => team.id !== teamId);
+
+    const nextBattleSelection = {
+      teamAId: battleSelection.teamAId === teamId ? null : battleSelection.teamAId,
+      teamBId: battleSelection.teamBId === teamId ? null : battleSelection.teamBId,
     };
 
-    persistSaved(saved);
-    set(saved);
+    persistTeams(nextTeams);
+    set({ teams: nextTeams, battleSelection: nextBattleSelection });
   },
 
-  canBattle: () => {
-    const { savedTeamA, savedTeamB } = get();
-    return canStartBattle(savedTeamA, savedTeamB);
+  getTeamById: (teamId) => {
+    const { teams } = get();
+    return teams.find((team) => team.id === teamId) || null;
+  },
+
+  selectBattleTeams: (teamAId, teamBId) => {
+    set({
+      battleSelection: {
+        teamAId,
+        teamBId,
+      },
+    });
+  },
+
+  canBattle: (teamAId, teamBId) => {
+    const { teams, battleSelection } = get();
+
+    const finalTeamAId = teamAId ?? battleSelection.teamAId;
+    const finalTeamBId = teamBId ?? battleSelection.teamBId;
+
+    if (!finalTeamAId || !finalTeamBId || finalTeamAId === finalTeamBId) return false;
+
+    const teamA = teams.find((team) => team.id === finalTeamAId);
+    const teamB = teams.find((team) => team.id === finalTeamBId);
+
+    if (!teamA || !teamB) return false;
+
+    return canStartBattle(teamA.pokemons, teamB.pokemons);
   },
 }));
