@@ -1,6 +1,5 @@
 import { Plus, X } from "lucide-react";
 
-
 export function PokemonSlot({ pokemon, onClick, onRemove, index }) {
   if (pokemon) {
     return (

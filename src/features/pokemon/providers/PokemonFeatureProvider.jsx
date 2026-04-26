@@ -1,6 +1,6 @@
-import { createContext, useMemo } from "react";
+import { useMemo } from "react";
 
-export const PokemonFeatureContext = createContext(null);
+import { PokemonFeatureContext } from "./PokemonFeatureContext";
 
 export function PokemonFeatureProvider({ children, onSelectPokemon }) {
   const value = useMemo(

@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 
 function App() {
   return (
@@ -8,7 +8,7 @@ function App() {
         <p className="text-gray-600 mt-2">Project setup complete!</p>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

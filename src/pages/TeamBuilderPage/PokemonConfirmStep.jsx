@@ -2,11 +2,7 @@ import { Button } from "@/components/ui/button";
 import { usePokemonDetail } from "@/features/pokemon";
 
 export function PokemonConfirmStep({ pokemonId, onBack, onConfirm }) {
-  const {
-    data: pokemon,
-    isLoading,
-    isError,
-  } = usePokemonDetail(pokemonId);
+  const { data: pokemon, isLoading, isError } = usePokemonDetail(pokemonId);
 
   if (isLoading) {
     return (
@@ -33,7 +29,9 @@ export function PokemonConfirmStep({ pokemonId, onBack, onConfirm }) {
     <div className="space-y-5">
       <div className="rounded-xl border border-(--gray-200) bg-(--gray-50) p-4">
         <p className="text-sm text-(--gray-700)">
-          Vas a añadir a <span className="font-semibold capitalize">{pokemon.name}</span> al equipo.
+          Vas a añadir a{" "}
+          <span className="font-semibold capitalize">{pokemon.name}</span> al
+          equipo.
         </p>
       </div>
 

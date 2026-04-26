@@ -15,18 +15,18 @@ export function sortByAttackDesc(pokemons) {
 export function applyPokemonFilters({ pokemons, search, sort, shuffle }) {
   let result = pokemons;
 
-  result = filterPokemonsByName(result, search);
+  result = searchPokemon(result, search);
 
   if (sort === "attack") {
-    result = sortPokemonsByAttackDesc(result);
+    result = sortByAttackDesc(result);
   }
 
   if (sort === "name") {
-    result = sortPokemonsByName(result);
+    result = [...result].sort((a, b) => a.name.localeCompare(b.name));
   }
 
   if (shuffle) {
-    result = shufflePokemons(result);
+    result = shuffleArray(result);
   }
 
   return result;

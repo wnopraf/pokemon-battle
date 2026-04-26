@@ -4,11 +4,7 @@ import { Button } from "@/components/ui/button";
 import { usePokemonDetail } from "@/features/pokemon";
 
 export function PokemonDetailStep({ pokemonId, onBack, onContinue }) {
-  const {
-    data: pokemon,
-    isLoading,
-    isError,
-  } = usePokemonDetail(pokemonId);
+  const { data: pokemon, isLoading, isError } = usePokemonDetail(pokemonId);
 
   if (isLoading) {
     return (
@@ -71,15 +67,21 @@ export function PokemonDetailStep({ pokemonId, onBack, onContinue }) {
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-(--gray-200) bg-(--gray-50) p-3 text-center">
           <p className="text-xs text-(--gray-500)">Ataque</p>
-          <p className="text-lg font-semibold text-(--gray-900)">{pokemon.attack}</p>
+          <p className="text-lg font-semibold text-(--gray-900)">
+            {pokemon.attack}
+          </p>
         </div>
         <div className="rounded-xl border border-(--gray-200) bg-(--gray-50) p-3 text-center">
           <p className="text-xs text-(--gray-500)">Defensa</p>
-          <p className="text-lg font-semibold text-(--gray-900)">{pokemon.defense}</p>
+          <p className="text-lg font-semibold text-(--gray-900)">
+            {pokemon.defense}
+          </p>
         </div>
         <div className="rounded-xl border border-(--gray-200) bg-(--gray-50) p-3 text-center">
           <p className="text-xs text-(--gray-500)">Velocidad</p>
-          <p className="text-lg font-semibold text-(--gray-900)">{pokemon.speed}</p>
+          <p className="text-lg font-semibold text-(--gray-900)">
+            {pokemon.speed}
+          </p>
         </div>
       </div>
 

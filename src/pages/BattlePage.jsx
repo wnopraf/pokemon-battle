@@ -1,3 +1,3 @@
 export const BattlePage = () => {
-  return <div>BattlePage</div>
-}
+  return <div>BattlePage</div>;
+};

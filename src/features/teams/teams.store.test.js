@@ -97,7 +97,8 @@ describe("teams.store", () => {
   });
 
   it("saves draft as a team and persists", () => {
-    const { addPokemon, setDraftTeamName, saveDraft } = useTeamsStore.getState();
+    const { addPokemon, setDraftTeamName, saveDraft } =
+      useTeamsStore.getState();
     const draftId = useTeamsStore.getState().draftTeam.id;
 
     setDraftTeamName("Equipo eléctrico");
@@ -117,8 +118,14 @@ describe("teams.store", () => {
   });
 
   it("canBattle returns true only when two different selected teams have pokemon", () => {
-    const { startDraft, setDraftTeamName, addPokemon, saveDraft, selectBattleTeams, canBattle } =
-      useTeamsStore.getState();
+    const {
+      startDraft,
+      setDraftTeamName,
+      addPokemon,
+      saveDraft,
+      selectBattleTeams,
+      canBattle,
+    } = useTeamsStore.getState();
 
     expect(canBattle()).toBe(false);
 
@@ -162,15 +169,9 @@ describe("teams.store", () => {
       },
     ];
 
-    localStorage.setItem(
-      "teams-draft-v2",
-      JSON.stringify(draftTeam),
-    );
+    localStorage.setItem("teams-draft-v2", JSON.stringify(draftTeam));
 
-    localStorage.setItem(
-      "teams-saved-v2",
-      JSON.stringify(teams),
-    );
+    localStorage.setItem("teams-saved-v2", JSON.stringify(teams));
 
     jest.resetModules();
 

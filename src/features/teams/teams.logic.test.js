@@ -8,7 +8,13 @@ import {
 
 describe("teams.logic", () => {
   describe("addPokemonToTeam", () => {
-    const mockPokemon = { id: 1, name: "Bulbasaur", attack: 50, defense: 50, speed: 50 };
+    const mockPokemon = {
+      id: 1,
+      name: "Bulbasaur",
+      attack: 50,
+      defense: 50,
+      speed: 50,
+    };
 
     it("should add pokemon to team A", () => {
       const result = addPokemonToTeam({
@@ -174,7 +180,7 @@ describe("teams.logic", () => {
           { id: 1, name: "Bulbasaur" },
           { id: 2, name: "Charmander" },
         ],
-        2
+        2,
       );
 
       expect(result).toBe(true);
@@ -187,7 +193,7 @@ describe("teams.logic", () => {
           { id: 2, name: "Charmander" },
           { id: 3, name: "Squirtle" },
         ],
-        2
+        2,
       );
 
       expect(result).toBe(true);
@@ -198,7 +204,7 @@ describe("teams.logic", () => {
     it("should return true when both teams have pokemon", () => {
       const result = canStartBattle(
         [{ id: 1, name: "Bulbasaur" }],
-        [{ id: 2, name: "Charmander" }]
+        [{ id: 2, name: "Charmander" }],
       );
 
       expect(result).toBe(true);

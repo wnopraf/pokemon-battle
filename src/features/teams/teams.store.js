@@ -4,7 +4,8 @@ import { canStartBattle, removePokemonFromTeam } from "./teams.logic";
 const DRAFT_KEY = "teams-draft-v2";
 const SAVED_KEY = "teams-saved-v2";
 
-const createTeamId = () => `team-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const createTeamId = () =>
+  `team-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 const createEmptyDraftTeam = () => ({
   id: createTeamId(),
@@ -57,7 +58,8 @@ const initialTeams = loadTeams();
 
 const isDuplicatePokemon = (teams, draftTeamId, pokemonId) => {
   return teams.some(
-    (team) => team.id !== draftTeamId && team.pokemons.some((p) => p.id === pokemonId),
+    (team) =>
+      team.id !== draftTeamId && team.pokemons.some((p) => p.id === pokemonId),
   );
 };
 
@@ -159,8 +161,10 @@ export const useTeamsStore = create((set, get) => ({
     const nextTeams = teams.filter((team) => team.id !== teamId);
 
     const nextBattleSelection = {
-      teamAId: battleSelection.teamAId === teamId ? null : battleSelection.teamAId,
-      teamBId: battleSelection.teamBId === teamId ? null : battleSelection.teamBId,
+      teamAId:
+        battleSelection.teamAId === teamId ? null : battleSelection.teamAId,
+      teamBId:
+        battleSelection.teamBId === teamId ? null : battleSelection.teamBId,
     };
 
     persistTeams(nextTeams);
@@ -187,7 +191,8 @@ export const useTeamsStore = create((set, get) => ({
     const finalTeamAId = teamAId ?? battleSelection.teamAId;
     const finalTeamBId = teamBId ?? battleSelection.teamBId;
 
-    if (!finalTeamAId || !finalTeamBId || finalTeamAId === finalTeamBId) return false;
+    if (!finalTeamAId || !finalTeamBId || finalTeamAId === finalTeamBId)
+      return false;
 
     const teamA = teams.find((team) => team.id === finalTeamAId);
     const teamB = teams.find((team) => team.id === finalTeamBId);
