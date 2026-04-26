@@ -4,19 +4,18 @@ import { MemoryRouter } from "react-router-dom";
 import TeamsPage from "@/pages/TeamsPage";
 import { useTeamsStore } from "@/features/teams/teams.store";
 
-function TeamsPageStoryWrapper({ savedTeamA, savedTeamB }) {
+function TeamsPageStoryWrapper({ teams }) {
   useEffect(() => {
     const previous = useTeamsStore.getState();
 
-    useTeamsStore.setState({ savedTeamA, savedTeamB });
+    useTeamsStore.setState({ teams });
 
     return () => {
       useTeamsStore.setState({
-        savedTeamA: previous.savedTeamA,
-        savedTeamB: previous.savedTeamB,
+        teams: previous.teams,
       });
     };
-  }, [savedTeamA, savedTeamB]);
+  }, [teams]);
 
   return (
     <MemoryRouter initialEntries={["/teams"]}>
@@ -117,12 +116,14 @@ export default {
 export const Default = {
   render: () => (
     <TeamsPageStoryWrapper
-      savedTeamA={mockSavedTeamA}
-      savedTeamB={mockSavedTeamB}
+      teams={[
+        { id: "team-fire", name: "Equipo Fuego", pokemons: mockSavedTeamA },
+        { id: "team-water", name: "Equipo Agua", pokemons: mockSavedTeamB },
+      ]}
     />
   ),
 };
 
 export const Empty = {
-  render: () => <TeamsPageStoryWrapper savedTeamA={[]} savedTeamB={[]} />,
+  render: () => <TeamsPageStoryWrapper teams={[]} />,
 };

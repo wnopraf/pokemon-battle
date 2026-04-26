@@ -6,8 +6,13 @@ import { useTeamsStore } from "@/features/teams/teams.store";
 
 export default function TeamsPage() {
   const navigate = useNavigate();
-  const savedTeamA = useTeamsStore((s) => s.savedTeamA);
-  const savedTeamB = useTeamsStore((s) => s.savedTeamB);
+  const teams = useTeamsStore((s) => s.teams);
+  const startDraft = useTeamsStore((s) => s.startDraft);
+
+  const handleCreateTeam = () => {
+    startDraft();
+    navigate("/teams/new");
+  };
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -15,17 +20,28 @@ export default function TeamsPage() {
         <h1 className="text-2xl font-bold text-(--gray-900)">Mis equipos</h1>
 
         <Button
-          onClick={() => navigate("/teams/new")}
+          onClick={handleCreateTeam}
           className="h-10 px-4 bg-(--blue-500) hover:bg-(--blue-600)"
         >
           + Nuevo equipo
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <TeamCard title="Equipo 1" pokemons={savedTeamA} />
-        <TeamCard title="Equipo 2" pokemons={savedTeamB} />
-      </div>
+      {!teams.length ? (
+        <div className="rounded-xl border border-dashed border-(--gray-300) bg-(--gray-50) p-10 text-center text-(--gray-500)">
+          Aún no hay equipos guardados.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {teams.map((team, index) => (
+            <TeamCard
+              key={team.id}
+              title={team.name || `Equipo ${index + 1}`}
+              pokemons={team.pokemons}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
