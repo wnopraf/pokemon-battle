@@ -33,6 +33,7 @@ import {
 import { applyPokemonFilters } from "@/features/pokemon/pokemon.logic";
 import { PokemonFeatureProvider } from "@/features/pokemon/providers";
 import { PokemonSlot } from "@/features/teams/components/PokemonSlot";
+import { useDraftSaveWithFeedback } from "@/features/teams/hooks/useDraftSaveWithFeedback";
 import { useTeamsStore } from "@/features/teams/teams.store";
 
 import { PokemonConfirmStep } from "./PokemonConfirmStep";
@@ -51,9 +52,9 @@ export function TeamBuilderPage() {
   const draftPokemonSort = useTeamsStore((s) => s.draftPokemonSort);
   const setDraftPokemonSort = useTeamsStore((s) => s.setDraftPokemonSort);
   const setDraftTeamName = useTeamsStore((s) => s.setDraftTeamName);
-  const saveDraft = useTeamsStore((s) => s.saveDraft);
   const clearDraft = useTeamsStore((s) => s.clearDraft);
   const startDraft = useTeamsStore((s) => s.startDraft);
+  const { canSaveDraft, saveWithFeedback } = useDraftSaveWithFeedback();
   const draftPokemons = draftTeam?.pokemons ?? EMPTY_POKEMONS;
   const slotRefs = useRef([]);
   const [dragState, setDragState] = useState({
@@ -219,25 +220,15 @@ export function TeamBuilderPage() {
   };
 
   const handleSaveTeam = () => {
-    if (!draftTeam?.name?.trim()) {
-      toast.error("Por favor, introduce un nombre para el equipo");
-      return;
-    }
-    if (!draftTeam?.pokemons?.length) {
-      toast.error("Por favor, añade al menos un Pokémon al equipo");
-      return;
-    }
+    const wasSaved = saveWithFeedback();
+    if (!wasSaved) return;
 
-    saveDraft();
-    toast.success("Equipo guardado correctamente");
     navigate("/teams");
   };
 
   const isCreatingRoute = location.pathname === "/teams/new";
   const hasDraftChanges =
     Boolean(draftTeam?.name?.trim()) || (draftPokemons?.length ?? 0) > 0;
-  const canSaveDraft =
-    Boolean(draftTeam?.name?.trim()) && (draftPokemons?.length ?? 0) > 0;
 
   const handleCancelCreation = () => {
     if (hasDraftChanges) {
@@ -256,8 +247,9 @@ export function TeamBuilderPage() {
   };
 
   const handleSaveAndExit = () => {
-    if (!canSaveDraft) return;
-    saveDraft();
+    const wasSaved = saveWithFeedback();
+    if (!wasSaved) return;
+
     setIsCancelDialogOpen(false);
     navigate("/teams");
   };

@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useDraftSaveWithFeedback } from "@/features/teams/hooks/useDraftSaveWithFeedback";
 import { useTeamsStore } from "@/features/teams/teams.store";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +38,7 @@ const secondaryNavItems = [
 export default function AppLayout() {
   const draftTeam = useTeamsStore((s) => s.draftTeam);
   const clearDraft = useTeamsStore((s) => s.clearDraft);
-  const saveDraft = useTeamsStore((s) => s.saveDraft);
+  const { canSaveDraft, saveWithFeedback } = useDraftSaveWithFeedback();
   const location = useLocation();
   const navigate = useNavigate();
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
@@ -48,8 +49,6 @@ export default function AppLayout() {
   const isCreatingTeam = pathname === "/teams/new";
   const hasDraftChanges =
     Boolean(draftTeam?.name?.trim()) || (draftTeam?.pokemons?.length ?? 0) > 0;
-  const canSaveDraft =
-    Boolean(draftTeam?.name?.trim()) && (draftTeam?.pokemons?.length ?? 0) > 0;
 
   const handleBack = () => {
     if (isCreatingTeam && hasDraftChanges) {
@@ -77,8 +76,9 @@ export default function AppLayout() {
   };
 
   const handleSaveAndExitDraft = () => {
-    if (!canSaveDraft) return;
-    saveDraft();
+    const wasSaved = saveWithFeedback();
+    if (!wasSaved) return;
+
     setIsDiscardDialogOpen(false);
     navigate("/teams");
   };
