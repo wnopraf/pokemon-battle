@@ -2,7 +2,6 @@ import {
   ArrowLeft,
   Bolt,
   Flame,
-  History,
   LayoutGrid,
   Moon,
   User,
@@ -28,7 +27,6 @@ import { cn } from "@/lib/utils";
 const mainNavItems = [
   { to: "/teams", label: "Equipos", icon: LayoutGrid },
   { to: "/battle", label: "Combate", icon: Bolt },
-  { to: "/dev", label: "Historial", icon: History },
 ];
 
 const secondaryNavItems = [{ label: "Perfil", icon: User }];
@@ -41,7 +39,7 @@ export default function AppLayout() {
   const navigate = useNavigate();
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
   const pathname = location.pathname.replace(/\/+$/, "") || "/";
-  const showBackButton = !["/", "/teams", "/battle", "/dev"].includes(pathname);
+  const showBackButton = !["/", "/teams", "/battle"].includes(pathname);
   const isCreatingTeam = pathname === "/teams/new";
   const hasDraftChanges =
     Boolean(draftTeam?.name?.trim()) || (draftTeam?.pokemons?.length ?? 0) > 0;

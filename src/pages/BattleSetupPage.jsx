@@ -113,7 +113,9 @@ export function BattleSetupPage() {
       <div className="rounded-2xl border border-(--gray-200) bg-white p-5 shadow-sm md:p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <p className="mb-2 text-sm font-semibold text-(--gray-700)">Equipo 1</p>
+            <p className="mb-2 text-sm font-semibold text-(--gray-700)">
+              Equipo 1
+            </p>
             <Select value={teamAId} onValueChange={handleSelectTeamA}>
               <SelectTrigger className="h-11 w-full">
                 <SelectValue placeholder="Selecciona un equipo" />
@@ -129,7 +131,9 @@ export function BattleSetupPage() {
           </div>
 
           <div>
-            <p className="mb-2 text-sm font-semibold text-(--gray-700)">Equipo 2</p>
+            <p className="mb-2 text-sm font-semibold text-(--gray-700)">
+              Equipo 2
+            </p>
             <Select value={teamBId} onValueChange={handleSelectTeamB}>
               <SelectTrigger className="h-11 w-full">
                 <SelectValue placeholder="Selecciona un equipo" />

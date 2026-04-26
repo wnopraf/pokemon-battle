@@ -168,10 +168,6 @@ function AppSandbox({ initialPath = "/teams" }) {
             path: "battle/result",
             element: <BattleResultPage />,
           },
-          {
-            path: "dev",
-            element: <div className="p-4 text-sm">Historial (pendiente)</div>,
-          },
         ],
       },
     ],

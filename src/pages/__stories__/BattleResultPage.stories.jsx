@@ -74,7 +74,11 @@ const teamWater = {
   ],
 };
 
-function BattleResultStoryWrapper({ teams = [], selection = null, battleResult = null }) {
+function BattleResultStoryWrapper({
+  teams = [],
+  selection = null,
+  battleResult = null,
+}) {
   useEffect(() => {
     const previousTeamsState = useTeamsStore.getState();
     const previousBattleState = useBattleStore.getState();
@@ -141,6 +145,10 @@ export const Default = {
 
 export const Empty = {
   render: () => (
-    <BattleResultStoryConnected withResult={false} teams={[]} selection={null} />
+    <BattleResultStoryConnected
+      withResult={false}
+      teams={[]}
+      selection={null}
+    />
   ),
 };

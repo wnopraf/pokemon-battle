@@ -7,7 +7,6 @@ import TeamBuilderPage from "@/pages/TeamBuilderPage";
 import BattleSetupPage from "@/pages/BattleSetupPage";
 import BattlePage from "@/pages/BattlePage";
 import BattleResultPage from "@/pages/BattleResultPage";
-import DevPage from "@/dev/DevPage";
 
 export const router = createBrowserRouter([
   {
@@ -38,11 +37,6 @@ export const router = createBrowserRouter([
       {
         path: "battle/result",
         element: <BattleResultPage />,
-      },
-
-      {
-        path: "dev",
-        element: <DevPage />,
       },
     ],
   },

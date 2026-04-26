@@ -29,7 +29,8 @@ function PokemonRoster({ pokemons = [], tone = "neutral", emptyLabel }) {
               "border-(--green-500)/30 bg-(--green-500)/10 text-(--gray-900)",
             tone === "loser" &&
               "border-(--gray-200) bg-(--gray-50) text-(--gray-700)",
-            tone === "neutral" && "border-(--gray-200) bg-white text-(--gray-900)",
+            tone === "neutral" &&
+              "border-(--gray-200) bg-white text-(--gray-900)",
           )}
         >
           <img
@@ -169,10 +170,9 @@ export function BattleResultPage() {
             </h1>
 
             <p className="mt-3 max-w-2xl text-sm text-(--gray-600) md:text-base">
-              {winnerTeam.name} se impone a {loserTeam?.name} tras
-              {" "}
-              {battleResult.rounds.length} turnos. Aquí tienes el resumen final de
-              la batalla y el estado de ambos equipos.
+              {winnerTeam.name} se impone a {loserTeam?.name} tras{" "}
+              {battleResult.rounds.length} turnos. Aquí tienes el resumen final
+              de la batalla y el estado de ambos equipos.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -180,7 +180,11 @@ export function BattleResultPage() {
                 <RotateCcw className="size-4" />
                 Revancha
               </Button>
-              <Button type="button" variant="outline" onClick={handleBackToSetup}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleBackToSetup}
+              >
                 <Swords className="size-4" />
                 Nueva selección
               </Button>
@@ -249,17 +253,20 @@ export function BattleResultPage() {
       </div>
 
       <section className="mt-6 rounded-2xl border border-(--gray-200) bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-bold text-(--gray-900)">Resumen por turnos</h2>
+        <h2 className="text-lg font-bold text-(--gray-900)">
+          Resumen por turnos
+        </h2>
         <p className="mt-1 text-sm text-(--gray-500)">
           Secuencia completa de los enfrentamientos individuales.
         </p>
 
         <div className="mt-5 space-y-3">
           {battleResult.rounds.map((round) => {
-            const winnerLabel =
-              winnerTeam?.pokemons?.some((pokemon) => pokemon.id === round.winner.id)
-                ? winnerTeam.name
-                : loserTeam?.name;
+            const winnerLabel = winnerTeam?.pokemons?.some(
+              (pokemon) => pokemon.id === round.winner.id,
+            )
+              ? winnerTeam.name
+              : loserTeam?.name;
 
             return (
               <article
