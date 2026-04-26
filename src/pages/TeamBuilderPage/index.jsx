@@ -6,6 +6,7 @@ import {
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -41,6 +42,8 @@ import { useTeamBuilderFlow } from "./useTeamBuilderFlow";
 const EMPTY_POKEMONS = [];
 
 export function TeamBuilderPage() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const draftTeam = useTeamsStore((s) => s.draftTeam);
   const removePokemon = useTeamsStore((s) => s.removePokemon);
   const addPokemon = useTeamsStore((s) => s.addPokemon);
@@ -49,6 +52,7 @@ export function TeamBuilderPage() {
   const setDraftPokemonSort = useTeamsStore((s) => s.setDraftPokemonSort);
   const setDraftTeamName = useTeamsStore((s) => s.setDraftTeamName);
   const saveDraft = useTeamsStore((s) => s.saveDraft);
+  const clearDraft = useTeamsStore((s) => s.clearDraft);
   const startDraft = useTeamsStore((s) => s.startDraft);
   const draftPokemons = draftTeam?.pokemons ?? EMPTY_POKEMONS;
   const slotRefs = useRef([]);
@@ -57,6 +61,7 @@ export function TeamBuilderPage() {
     targetIndex: null,
   });
   const [duplicatePokemonName, setDuplicatePokemonName] = useState("");
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
 
   const {
     isFlowOpen,
@@ -215,15 +220,46 @@ export function TeamBuilderPage() {
 
   const handleSaveTeam = () => {
     if (!draftTeam?.name?.trim()) {
-      alert("Por favor, introduce un nombre para el equipo");
+      toast.error("Por favor, introduce un nombre para el equipo");
       return;
     }
     if (!draftTeam?.pokemons?.length) {
-      alert("Por favor, añade al menos un Pokémon al equipo");
+      toast.error("Por favor, añade al menos un Pokémon al equipo");
       return;
     }
+
     saveDraft();
-    alert("Equipo guardado correctamente");
+    toast.success("Equipo guardado correctamente");
+    navigate("/teams");
+  };
+
+  const isCreatingRoute = location.pathname === "/teams/new";
+  const hasDraftChanges =
+    Boolean(draftTeam?.name?.trim()) || (draftPokemons?.length ?? 0) > 0;
+  const canSaveDraft =
+    Boolean(draftTeam?.name?.trim()) && (draftPokemons?.length ?? 0) > 0;
+
+  const handleCancelCreation = () => {
+    if (hasDraftChanges) {
+      setIsCancelDialogOpen(true);
+      return;
+    }
+
+    clearDraft();
+    navigate("/teams");
+  };
+
+  const handleConfirmCancelDiscard = () => {
+    clearDraft();
+    setIsCancelDialogOpen(false);
+    navigate("/teams");
+  };
+
+  const handleSaveAndExit = () => {
+    if (!canSaveDraft) return;
+    saveDraft();
+    setIsCancelDialogOpen(false);
+    navigate("/teams");
   };
 
   const isTeamFull = (draftTeam?.pokemons?.length ?? 0) >= 6;
@@ -369,13 +405,26 @@ export function TeamBuilderPage() {
             </Button>
           </div>
 
-          <Button
-            onClick={handleSaveTeam}
-            size="lg"
-            className="h-12 w-full bg-(--blue-500) text-base font-semibold hover:bg-(--blue-600)"
-          >
-            Guardar equipo
-          </Button>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {isCreatingRoute ? (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCancelCreation}
+                className="h-12 border-(--gray-300) text-(--gray-700) hover:bg-(--gray-100)"
+              >
+                Cancelar
+              </Button>
+            ) : null}
+
+            <Button
+              onClick={handleSaveTeam}
+              size="lg"
+              className="h-12 w-full bg-(--blue-500) text-base font-semibold hover:bg-(--blue-600)"
+            >
+              Guardar equipo
+            </Button>
+          </div>
         </div>
 
         <PokeSearchModal
@@ -406,6 +455,38 @@ export function TeamBuilderPage() {
                 onClick={() => setDuplicatePokemonName("")}
               >
                 Cerrar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+          <DialogContent className="sm:max-w-md" showCloseButton={false}>
+            <DialogHeader>
+              <DialogTitle>Descartar borrador</DialogTitle>
+              <DialogDescription>
+                Tienes cambios sin guardar en el equipo. Si cancelas ahora, se
+                perderán.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCancelDialogOpen(false)}
+              >
+                Seguir editando
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={!canSaveDraft}
+                onClick={handleSaveAndExit}
+              >
+                Guardar y salir
+              </Button>
+              <Button type="button" onClick={handleConfirmCancelDiscard}>
+                Descartar borrador
               </Button>
             </DialogFooter>
           </DialogContent>
