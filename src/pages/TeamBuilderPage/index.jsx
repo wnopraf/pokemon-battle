@@ -176,9 +176,14 @@ export function TeamBuilderPage() {
             getInitialData: () => ({ type: "team-pokemon", index }),
             onDragStart: () => {
               setDragState({ sourceIndex: index, targetIndex: null });
+              document.body.style.cursor = 'grabbing';
             },
             onDrop: () => {
               setDragState({ sourceIndex: null, targetIndex: null });
+              document.body.style.cursor = '';
+            },
+            onDragEnd: () => {
+              document.body.style.cursor = '';
             },
           }),
           dropCleanup,
@@ -311,11 +316,13 @@ export function TeamBuilderPage() {
   const renderModalStep = () => {
     if (currentStep === "detail") {
       return (
-        <PokemonDetailStep
-          pokemonId={selectedPokemonId}
-          onBack={backStep}
-          onContinue={goToConfirm}
-        />
+        <div className="h-full min-h-0 overflow-y-auto pr-1 sm:pr-2">
+          <PokemonDetailStep
+            pokemonId={selectedPokemonId}
+            onBack={backStep}
+            onContinue={goToConfirm}
+          />
+        </div>
       );
     }
 
@@ -334,22 +341,35 @@ export function TeamBuilderPage() {
 
   return (
     <PokemonFeatureProvider onSelectPokemon={handleSelectPokemon}>
-      <div className="mx-auto max-w-3xl">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-(--gray-900)">{pageTitle}</h1>
-          <p className="mt-2 text-sm text-(--gray-500)">
+      <div className="mx-auto max-w-lg">
+        <div className="mb-6 max-w-2xl">
+          <h1 className="text-[2rem] font-bold text-(--gray-900)">
+            {pageTitle}
+          </h1>
+          <p className="mt-2 text-[15px] leading-6 text-(--gray-500)">
             {isEditMode
               ? "Actualiza la alineación y guarda los cambios del equipo seleccionado."
               : "Crea un nuevo equipo y prepara su alineación para el combate."}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-(--gray-200) bg-white p-6 shadow-xl md:p-8">
-          <div className="mb-8 flex items-end justify-between gap-6">
-            <div className="w-full">
+        <div className="rounded-[1.45rem] border border-(--gray-200) bg-white p-4 shadow-lg sm:p-4 lg:p-4.5">
+          <div className="space-y-4 lg:space-y-4.5">
+            <div className="rounded-2xl border border-(--gray-200) bg-(--gray-50) p-4 sm:p-4">
+              <div className="mb-3 max-w-2xl">
+                <p className="text-sm font-semibold text-(--gray-900)">
+                  Identidad del equipo
+                </p>
+                <p className="mt-1 text-sm leading-5.5 text-(--gray-500)">
+                  Ponle un nombre reconocible para distinguirlo fácilmente antes de entrar en combate.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4.5">
+                <div className="w-full">
               <label
                 htmlFor="teamName"
-                className="mb-3 block text-sm font-semibold text-(--gray-900)"
+                className="mb-2 block text-sm font-semibold text-(--gray-900)"
               >
                 Nombre del equipo
               </label>
@@ -359,103 +379,114 @@ export function TeamBuilderPage() {
                 placeholder="Ej: Equipo Fuego"
                 value={draftTeam?.name || ""}
                 onChange={(e) => setDraftTeamName(e.target.value)}
-                className="h-12 w-full text-base border-(--gray-300) focus-visible:ring-(--blue-500)"
+                className="h-10 w-full border-(--gray-300) bg-white text-[15px] focus-visible:ring-(--blue-500)"
               />
-            </div>
-            <div className="whitespace-nowrap text-sm font-semibold text-(--gray-500)">
-              {draftTeam?.pokemons?.length ?? 0}/6
-            </div>
-          </div>
-
-          <div className="mb-8">
-            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-semibold text-(--gray-700)">
-                Ordenar equipo
-              </p>
-              <Select
-                value={draftPokemonSort}
-                onValueChange={setDraftPokemonSort}
-              >
-                <SelectTrigger className="h-10 w-full sm:w-56">
-                  <SelectValue placeholder="Orden manual" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="manual">Manual (drag & drop)</SelectItem>
-                  <SelectItem value="name">Nombre (A-Z)</SelectItem>
-                  <SelectItem value="attack">Ataque (mayor a menor)</SelectItem>
-                  <SelectItem value="random">Aleatorio</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {draftPokemonSort !== "manual" ? (
-              <p className="mb-3 text-xs text-(--gray-500)">
-                El arrastre se desactiva mientras el orden automático está
-                activo.
-              </p>
-            ) : null}
-
-            <div className="grid grid-cols-3 gap-4 md:gap-5">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <div
-                  key={index}
-                  ref={(element) => {
-                    slotRefs.current[index] = element;
-                  }}
-                  className={cn(
-                    "rounded-xl transition-all duration-300 ease-out",
-                    draftPokemonSort === "manual" &&
-                      visiblePokemons[index] &&
-                      "cursor-grab active:cursor-grabbing",
-                    dragStateForView.sourceIndex === index &&
-                      "scale-[0.97] opacity-60 shadow-2xl",
-                    dragStateForView.targetIndex === index &&
-                      dragStateForView.sourceIndex !== index &&
-                      "border-2 border-dashed border-(--blue-300) bg-(--blue-50)",
-                  )}
-                >
-                  <PokemonSlot
-                    pokemon={visiblePokemons[index]}
-                    onRemove={handleRemovePokemon}
-                    isDraggable={draftPokemonSort === "manual"}
-                  />
                 </div>
-              ))}
+                <div className="rounded-xl border border-(--gray-200) bg-white px-3 py-2 text-sm font-semibold text-(--gray-600) shadow-sm">
+                  {draftTeam?.pokemons?.length ?? 0}/6 Pokémon
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div className="mb-6">
-            <Button
-              type="button"
-              onClick={handleAddPokemon}
-              disabled={isTeamFull}
-              variant="outline"
-              className="h-11 w-full border-(--blue-300) text-(--blue-600) hover:bg-(--blue-50) hover:border-(--blue-500)"
-            >
-              <Plus className="size-4" />
-              {isTeamFull ? "Equipo completo" : "Añadir Pokémon"}
-            </Button>
-          </div>
+            <div className="rounded-2xl border border-(--gray-200) bg-(--gray-50) p-4 sm:p-4">
+              <div className="mb-3 flex flex-col gap-3 sm:gap-3.5">
+                <div>
+                  <p className="text-sm font-semibold text-(--gray-900)">
+                    Alineación del equipo
+                  </p>
+                  <p className="mt-1 text-sm leading-5.5 text-(--gray-500)">
+                    Organiza tu formación y ajusta el orden para preparar la estrategia.
+                  </p>
+                </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {isCreatingRoute ? (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCancelCreation}
-                className="h-12 border-(--gray-300) text-(--gray-700) hover:bg-(--gray-100)"
-              >
-                Cancelar
-              </Button>
-            ) : null}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <Select
+                    value={draftPokemonSort}
+                    onValueChange={setDraftPokemonSort}
+                  >
+                    <SelectTrigger className="h-9.5 w-full bg-white sm:w-50">
+                      <SelectValue placeholder="Orden manual" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="manual">Manual (drag & drop)</SelectItem>
+                      <SelectItem value="name">Nombre (A-Z)</SelectItem>
+                      <SelectItem value="attack">Ataque (mayor a menor)</SelectItem>
+                      <SelectItem value="random">Aleatorio</SelectItem>
+                    </SelectContent>
+                  </Select>
 
-            <Button
-              onClick={handleSaveTeam}
-              size="lg"
-              className="h-12 w-full bg-(--blue-500) text-base font-semibold hover:bg-(--blue-600)"
-            >
-              {saveButtonLabel}
-            </Button>
+                  <Button
+                    type="button"
+                    onClick={handleAddPokemon}
+                    disabled={isTeamFull}
+                    variant="outline"
+                    className="h-9.5 w-full border-(--blue-300) bg-white text-(--blue-600) hover:border-(--blue-500) hover:bg-(--blue-50) sm:w-auto"
+                  >
+                    <Plus className="size-4" />
+                    {isTeamFull ? "Equipo completo" : "Añadir Pokémon"}
+                  </Button>
+                </div>
+              </div>
+
+              {draftPokemonSort !== "manual" ? (
+                <p className="mb-3 text-sm leading-5.5 text-(--gray-500)">
+                  El arrastre se desactiva mientras el orden automático está
+                  activo.
+                </p>
+              ) : null}
+
+              <div className="grid grid-cols-3 gap-3 md:gap-3.5 lg:gap-4">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <div
+                    key={index}
+                    ref={(element) => {
+                      slotRefs.current[index] = element;
+                    }}
+                    className={cn(
+                      "rounded-xl transition-all duration-300 ease-out",
+                      draftPokemonSort === "manual" &&
+                        visiblePokemons[index] &&
+                        "cursor-grab active:cursor-grabbing",
+                      dragStateForView.sourceIndex === index &&
+                        "scale-[0.97] opacity-60 shadow-2xl",
+                      dragStateForView.targetIndex === index &&
+                        dragStateForView.sourceIndex !== index &&
+                        "border-2 border-dashed border-(--blue-300) bg-(--blue-50)",
+                    )}
+                  >
+                    <PokemonSlot
+                      pokemon={visiblePokemons[index]}
+                      onRemove={handleRemovePokemon}
+                      isDraggable={draftPokemonSort === "manual"}
+                      isDragging={dragStateForView.sourceIndex === index}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t border-(--gray-200) pt-4 sm:pt-4.5">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {isCreatingRoute ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancelCreation}
+                    className="h-10 border-(--gray-300) text-(--gray-700) hover:bg-(--gray-100)"
+                  >
+                    Cancelar
+                  </Button>
+                ) : null}
+
+                <Button
+                  onClick={handleSaveTeam}
+                  size="lg"
+                  className="h-10 w-full bg-(--blue-500) text-[15px] font-semibold hover:bg-(--blue-600)"
+                >
+                  {saveButtonLabel}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -464,6 +495,7 @@ export function TeamBuilderPage() {
           onOpenChange={handleModalOpenChange}
           title={modalTitleByStep[currentStep]}
           description={modalDescriptionByStep[currentStep]}
+          size={currentStep}
         >
           {renderModalStep()}
         </PokeSearchModal>

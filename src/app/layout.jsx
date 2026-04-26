@@ -113,7 +113,7 @@ export default function AppLayout() {
               <button
                 key={label}
                 type="button"
-                className="flex w-full cursor-default items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-(--gray-500)"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-(--gray-500)"
               >
                 <Icon className="size-3.5" />
                 <span>{label}</span>

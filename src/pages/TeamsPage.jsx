@@ -22,24 +22,36 @@ export default function TeamsPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="flex items-center justify-between gap-4 mb-8">
-        <h1 className="text-2xl font-bold text-(--gray-900)">Mis equipos</h1>
+    <div className="mx-auto max-w-176">
+      <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="max-w-2xl">
+          <h1 className="text-3xl font-bold text-(--gray-900)">Mis equipos</h1>
+          <p className="mt-2 text-base leading-7 text-(--gray-500)">
+            Revisa tus equipos guardados, compara alineaciones y entra en
+            edición cuando quieras ajustar la estrategia.
+          </p>
+        </div>
 
         <Button
           onClick={handleCreateTeam}
-          className="h-10 px-4 bg-(--blue-500) hover:bg-(--blue-600)"
+          className="h-11 px-5 text-base bg-(--blue-500) hover:bg-(--blue-600)"
         >
           + Nuevo equipo
         </Button>
       </div>
 
       {!teams.length ? (
-        <div className="rounded-xl border border-dashed border-(--gray-300) bg-(--gray-50) p-10 text-center text-(--gray-500)">
-          Aún no hay equipos guardados.
+        <div className="rounded-[1.75rem] border border-dashed border-(--gray-300) bg-(--gray-50) p-12 text-center">
+          <p className="text-lg font-semibold text-(--gray-900)">
+            Aún no hay equipos guardados.
+          </p>
+          <p className="mt-2 text-base leading-7 text-(--gray-500)">
+            Crea tu primer equipo para empezar a preparar alineaciones y
+            enfrentamientos.
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {teams.map((team, index) => (
             <TeamCard
               key={team.id}
