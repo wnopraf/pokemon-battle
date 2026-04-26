@@ -154,12 +154,7 @@ export function TeamBuilderPage() {
     return () => {
       cleanups.forEach((cleanup) => cleanup());
     };
-  }, [
-    draftPokemonSort,
-    draftPokemons,
-    draftTeam?.id,
-    reorderDraftPokemons,
-  ]);
+  }, [draftPokemonSort, draftPokemons, draftTeam?.id, reorderDraftPokemons]);
 
   const handleAddPokemon = () => {
     if (!draftTeam?.id) return;
@@ -332,7 +327,9 @@ export function TeamBuilderPage() {
 
           <div className="mb-8">
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-semibold text-(--gray-700)">Ordenar equipo</p>
+              <p className="text-sm font-semibold text-(--gray-700)">
+                Ordenar equipo
+              </p>
               <Select
                 value={draftPokemonSort}
                 onValueChange={setDraftPokemonSort}
@@ -351,7 +348,8 @@ export function TeamBuilderPage() {
 
             {draftPokemonSort !== "manual" ? (
               <p className="mb-3 text-xs text-(--gray-500)">
-                El arrastre se desactiva mientras el orden automático está activo.
+                El arrastre se desactiva mientras el orden automático está
+                activo.
               </p>
             ) : null}
 
@@ -442,10 +440,7 @@ export function TeamBuilderPage() {
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button
-                type="button"
-                onClick={() => setDuplicatePokemonName("")}
-              >
+              <Button type="button" onClick={() => setDuplicatePokemonName("")}>
                 Cerrar
               </Button>
             </DialogFooter>

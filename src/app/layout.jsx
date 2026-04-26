@@ -31,9 +31,7 @@ const mainNavItems = [
   { to: "/dev", label: "Historial", icon: History },
 ];
 
-const secondaryNavItems = [
-  { label: "Perfil", icon: User },
-];
+const secondaryNavItems = [{ label: "Perfil", icon: User }];
 
 export default function AppLayout() {
   const draftTeam = useTeamsStore((s) => s.draftTeam);
@@ -43,9 +41,7 @@ export default function AppLayout() {
   const navigate = useNavigate();
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
   const pathname = location.pathname.replace(/\/+$/, "") || "/";
-  const showBackButton = !["/", "/teams", "/battle", "/dev"].includes(
-    pathname,
-  );
+  const showBackButton = !["/", "/teams", "/battle", "/dev"].includes(pathname);
   const isCreatingTeam = pathname === "/teams/new";
   const hasDraftChanges =
     Boolean(draftTeam?.name?.trim()) || (draftTeam?.pokemons?.length ?? 0) > 0;
@@ -89,7 +85,9 @@ export default function AppLayout() {
         <aside className="hidden w-[220px] border-r border-(--gray-200) bg-white px-3 py-4 md:flex md:flex-col">
           <div className="mb-5 flex items-center gap-2 px-2">
             <img src={pokeBallIcon} alt="PokeBattle" className="size-5" />
-            <p className="text-sm font-semibold text-(--gray-900)">PokeBattle</p>
+            <p className="text-sm font-semibold text-(--gray-900)">
+              PokeBattle
+            </p>
           </div>
 
           <nav className="space-y-1">
@@ -141,7 +139,9 @@ export default function AppLayout() {
               <div className="flex items-center gap-2">
                 <UserCircle2 className="size-4 text-(--red-500)" />
                 <div>
-                  <p className="text-xs font-medium text-(--gray-700)">Entrenador</p>
+                  <p className="text-xs font-medium text-(--gray-700)">
+                    Entrenador
+                  </p>
                   <p className="text-[10px] text-(--gray-500)">Nivel 25</p>
                 </div>
               </div>
