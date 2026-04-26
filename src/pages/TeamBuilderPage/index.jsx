@@ -1,8 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
+import {
+  draggable,
+  dropTargetForElements,
+} from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import {
   PokeSearch,
   PokeSearchModal,
@@ -19,9 +25,15 @@ export function TeamBuilderPage() {
   const draftTeam = useTeamsStore((s) => s.draftTeam);
   const removePokemon = useTeamsStore((s) => s.removePokemon);
   const addPokemon = useTeamsStore((s) => s.addPokemon);
+  const reorderDraftPokemons = useTeamsStore((s) => s.reorderDraftPokemons);
   const setDraftTeamName = useTeamsStore((s) => s.setDraftTeamName);
   const saveDraft = useTeamsStore((s) => s.saveDraft);
   const startDraft = useTeamsStore((s) => s.startDraft);
+  const slotRefs = useRef([]);
+  const [dragState, setDragState] = useState({
+    sourceIndex: null,
+    targetIndex: null,
+  });
 
   const {
     isFlowOpen,
@@ -40,6 +52,77 @@ export function TeamBuilderPage() {
       startDraft();
     }
   }, [draftTeam?.id, startDraft]);
+
+  useEffect(() => {
+    if (!draftTeam?.id) return;
+
+    const cleanups = Array.from({ length: 6 })
+      .map((_, index) => {
+        const element = slotRefs.current[index];
+        if (!element) return null;
+
+        const isOccupiedSlot = index < draftTeam.pokemons.length;
+
+        const dropCleanup = dropTargetForElements({
+          element,
+          canDrop: ({ source }) => {
+            return (
+              source.data?.type === "team-pokemon" &&
+              typeof source.data.index === "number"
+            );
+          },
+          onDragEnter: () => {
+            setDragState((current) => ({ ...current, targetIndex: index }));
+          },
+          onDragLeave: () => {
+            setDragState((current) =>
+              current.targetIndex === index
+                ? { ...current, targetIndex: null }
+                : current,
+            );
+          },
+          onDrop: ({ source }) => {
+            const startIndex = source.data?.index;
+            if (typeof startIndex !== "number") return;
+
+            const maxIndex = draftTeam.pokemons.length - 1;
+            if (maxIndex < 0) return;
+
+            const finishIndex = Math.min(index, maxIndex);
+            if (startIndex === finishIndex) {
+              setDragState({ sourceIndex: null, targetIndex: null });
+              return;
+            }
+
+            reorderDraftPokemons(draftTeam.id, startIndex, finishIndex);
+            setDragState({ sourceIndex: null, targetIndex: null });
+          },
+        });
+
+        if (!isOccupiedSlot) {
+          return dropCleanup;
+        }
+
+        return combine(
+          draggable({
+            element,
+            getInitialData: () => ({ type: "team-pokemon", index }),
+            onDragStart: () => {
+              setDragState({ sourceIndex: index, targetIndex: null });
+            },
+            onDrop: () => {
+              setDragState({ sourceIndex: null, targetIndex: null });
+            },
+          }),
+          dropCleanup,
+        );
+      })
+      .filter(Boolean);
+
+    return () => {
+      cleanups.forEach((cleanup) => cleanup());
+    };
+  }, [draftTeam?.id, draftTeam?.pokemons, reorderDraftPokemons]);
 
   const handleAddPokemon = () => {
     if (!draftTeam?.id) return;
@@ -154,12 +237,28 @@ export function TeamBuilderPage() {
           <div className="mb-8">
             <div className="grid grid-cols-3 gap-4 md:gap-5">
               {Array.from({ length: 6 }).map((_, index) => (
-                <PokemonSlot
+                <div
                   key={index}
-                  pokemon={draftTeam?.pokemons?.[index]}
-                  onRemove={handleRemovePokemon}
-                  index={index}
-                />
+                  ref={(element) => {
+                    slotRefs.current[index] = element;
+                  }}
+                  className={cn(
+                    "rounded-xl transition-all duration-300 ease-out",
+                    draftTeam?.pokemons?.[index] &&
+                      "cursor-grab active:cursor-grabbing",
+                    dragState.sourceIndex === index &&
+                      "scale-[0.97] opacity-60 shadow-2xl",
+                    dragState.targetIndex === index &&
+                      dragState.sourceIndex !== index &&
+                      "border-2 border-dashed border-(--blue-300) bg-(--blue-50)",
+                  )}
+                >
+                  <PokemonSlot
+                    pokemon={draftTeam?.pokemons?.[index]}
+                    onRemove={handleRemovePokemon}
+                    index={index}
+                  />
+                </div>
               ))}
             </div>
           </div>

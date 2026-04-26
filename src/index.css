@@ -7,6 +7,9 @@
 
 :root {
   /* BRAND */
+  --blue-50: #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-300: #93c5fd;
   --blue-500: #4a90e2;
   --blue-600: #3b7ac4;
 

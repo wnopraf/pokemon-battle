@@ -126,6 +126,41 @@ export const useTeamsStore = create((set, get) => ({
     set({ draftTeam: nextDraft });
   },
 
+  reorderDraftPokemons: (teamId, startIndex, finishIndex) => {
+    const { draftTeam } = get();
+    if (teamId !== draftTeam.id) return;
+    if (
+      !Number.isInteger(startIndex) ||
+      !Number.isInteger(finishIndex) ||
+      startIndex === finishIndex
+    ) {
+      return;
+    }
+
+    const maxIndex = draftTeam.pokemons.length - 1;
+    if (
+      startIndex < 0 ||
+      finishIndex < 0 ||
+      startIndex > maxIndex ||
+      finishIndex > maxIndex
+    ) {
+      return;
+    }
+
+    const nextPokemons = [...draftTeam.pokemons];
+    const [movedPokemon] = nextPokemons.splice(startIndex, 1);
+    nextPokemons.splice(finishIndex, 0, movedPokemon);
+
+    const nextDraft = {
+      ...draftTeam,
+      pokemons: nextPokemons,
+      updatedAt: Date.now(),
+    };
+
+    persistDraft(nextDraft);
+    set({ draftTeam: nextDraft });
+  },
+
   clearDraft: () => {
     const nextDraft = createEmptyDraftTeam();
     persistDraft(nextDraft);

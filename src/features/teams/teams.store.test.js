@@ -83,6 +83,38 @@ describe("teams.store", () => {
     });
   });
 
+  it("reorders pokemons in draft and persists", () => {
+    const { addPokemon, reorderDraftPokemons } = useTeamsStore.getState();
+    const draftId = useTeamsStore.getState().draftTeam.id;
+
+    addPokemon(draftId, pikachu);
+    addPokemon(draftId, charmander);
+
+    reorderDraftPokemons(draftId, 0, 1);
+
+    const state = useTeamsStore.getState();
+
+    expect(state.draftTeam.pokemons).toEqual([charmander, pikachu]);
+    expect(JSON.parse(localStorage.getItem("teams-draft-v2"))).toMatchObject({
+      id: draftId,
+      pokemons: [charmander, pikachu],
+    });
+  });
+
+  it("does not reorder pokemons when indices are invalid", () => {
+    const { addPokemon, reorderDraftPokemons } = useTeamsStore.getState();
+    const draftId = useTeamsStore.getState().draftTeam.id;
+
+    addPokemon(draftId, pikachu);
+    addPokemon(draftId, charmander);
+
+    reorderDraftPokemons(draftId, 0, 2);
+
+    const state = useTeamsStore.getState();
+
+    expect(state.draftTeam.pokemons).toEqual([pikachu, charmander]);
+  });
+
   it("clears draft and persists", () => {
     const { addPokemon, clearDraft } = useTeamsStore.getState();
     const draftId = useTeamsStore.getState().draftTeam.id;
