@@ -1,9 +1,32 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
-export function TeamCard({ title, pokemons }) {
+export function TeamCard({ title, pokemons, onClick }) {
+  const isInteractive = typeof onClick === "function";
+
   return (
-    <Card className="rounded-2xl border-(--gray-200) shadow-sm py-5 gap-3">
+    <Card
+      className={cn(
+        "rounded-2xl border-(--gray-200) py-5 gap-3",
+        isInteractive
+          ? "cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-(--blue-300) hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--blue-500)"
+          : "shadow-sm",
+      )}
+      onClick={isInteractive ? onClick : undefined}
+      onKeyDown={
+        isInteractive
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
+      role={isInteractive ? "button" : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
+    >
       <CardHeader className="flex flex-row items-center justify-between px-5 pb-0">
         <CardTitle className="font-semibold text-(--gray-900) text-base">
           {title}

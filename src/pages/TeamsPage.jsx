@@ -14,6 +14,13 @@ export default function TeamsPage() {
     navigate("/teams/new");
   };
 
+  const handleEditTeam = (team) => {
+    if (!team?.id) return;
+
+    startDraft(team);
+    navigate(`/teams/${team.id}`);
+  };
+
   return (
     <div className="max-w-5xl mx-auto">
       <div className="flex items-center justify-between gap-4 mb-8">
@@ -38,6 +45,7 @@ export default function TeamsPage() {
               key={team.id}
               title={team.name || `Equipo ${index + 1}`}
               pokemons={team.pokemons}
+              onClick={() => handleEditTeam(team)}
             />
           ))}
         </div>

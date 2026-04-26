@@ -6,7 +6,7 @@ import {
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,7 +45,9 @@ const EMPTY_POKEMONS = [];
 export function TeamBuilderPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { id: routeTeamId } = useParams();
   const draftTeam = useTeamsStore((s) => s.draftTeam);
+  const teams = useTeamsStore((s) => s.teams);
   const removePokemon = useTeamsStore((s) => s.removePokemon);
   const addPokemon = useTeamsStore((s) => s.addPokemon);
   const reorderDraftPokemons = useTeamsStore((s) => s.reorderDraftPokemons);
@@ -76,11 +78,44 @@ export function TeamBuilderPage() {
     backStep,
   } = useTeamBuilderFlow();
 
+  const isCreatingRoute = location.pathname === "/teams/new";
+  const selectedTeam = useMemo(
+    () => teams.find((team) => team.id === routeTeamId) ?? null,
+    [routeTeamId, teams],
+  );
+
   useEffect(() => {
-    if (!draftTeam?.id) {
+    if (isCreatingRoute) {
+      if (!draftTeam?.id) {
+        startDraft();
+      }
+      return;
+    }
+
+    if (!routeTeamId) return;
+
+    if (!selectedTeam) {
+      navigate("/teams", { replace: true });
+      return;
+    }
+
+    if (draftTeam?.id !== selectedTeam.id) {
+      startDraft(selectedTeam);
+    }
+  }, [
+    draftTeam?.id,
+    isCreatingRoute,
+    navigate,
+    routeTeamId,
+    selectedTeam,
+    startDraft,
+  ]);
+
+  useEffect(() => {
+    if (!isCreatingRoute && !routeTeamId && !draftTeam?.id) {
       startDraft();
     }
-  }, [draftTeam?.id, startDraft]);
+  }, [draftTeam?.id, isCreatingRoute, routeTeamId, startDraft]);
 
   useEffect(() => {
     if (!draftTeam?.id) return;
@@ -221,7 +256,9 @@ export function TeamBuilderPage() {
     navigate("/teams");
   };
 
-  const isCreatingRoute = location.pathname === "/teams/new";
+  const isEditMode = !isCreatingRoute;
+  const pageTitle = isEditMode ? "Editar equipo" : "Crear equipo";
+  const saveButtonLabel = isEditMode ? "Guardar cambios" : "Guardar equipo";
   const hasDraftChanges =
     Boolean(draftTeam?.name?.trim()) || (draftPokemons?.length ?? 0) > 0;
 
@@ -299,7 +336,12 @@ export function TeamBuilderPage() {
     <PokemonFeatureProvider onSelectPokemon={handleSelectPokemon}>
       <div className="mx-auto max-w-3xl">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-(--gray-900)">Crear equipo</h1>
+          <h1 className="text-2xl font-bold text-(--gray-900)">{pageTitle}</h1>
+          <p className="mt-2 text-sm text-(--gray-500)">
+            {isEditMode
+              ? "Actualiza la alineación y guarda los cambios del equipo seleccionado."
+              : "Crea un nuevo equipo y prepara su alineación para el combate."}
+          </p>
         </div>
 
         <div className="rounded-2xl border border-(--gray-200) bg-white p-6 shadow-xl md:p-8">
@@ -412,7 +454,7 @@ export function TeamBuilderPage() {
               size="lg"
               className="h-12 w-full bg-(--blue-500) text-base font-semibold hover:bg-(--blue-600)"
             >
-              Guardar equipo
+              {saveButtonLabel}
             </Button>
           </div>
         </div>
