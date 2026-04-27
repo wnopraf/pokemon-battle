@@ -21,6 +21,7 @@ export function usePokemonSearch({
     isLoading: isLoadingPokemons,
     isError: isPokemonsError,
     error: pokemonsError,
+    refetch: refetchPokemons,
   } = usePokemonList({
     type: selectedType || undefined,
     limit,
@@ -32,6 +33,7 @@ export function usePokemonSearch({
     isLoading: isLoadingTypes,
     isError: isTypesError,
     error: typesError,
+    refetch: refetchTypes,
   } = usePokemonTypes();
 
   const results = useMemo(() => {
@@ -52,5 +54,9 @@ export function usePokemonSearch({
     isLoadingTypes,
     isError: isPokemonsError || isTypesError,
     error: pokemonsError || typesError,
+    refetch: () => {
+      if (isPokemonsError) refetchPokemons();
+      if (isTypesError) refetchTypes();
+    },
   };
 }

@@ -3,7 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { usePokemonDetail } from "@/features/pokemon";
 
 export function PokemonConfirmStep({ pokemonId, onBack, onConfirm }) {
-  const { data: pokemon, isLoading, isError } = usePokemonDetail(pokemonId);
+  const {
+    data: pokemon,
+    isLoading,
+    isError,
+    refetch,
+  } = usePokemonDetail(pokemonId);
 
   if (isLoading) {
     return (
@@ -19,9 +24,14 @@ export function PokemonConfirmStep({ pokemonId, onBack, onConfirm }) {
         <div className="rounded-xl border border-(--red-500) bg-red-50 p-4 text-sm text-(--red-500)">
           No se pudo cargar el Pokémon seleccionado.
         </div>
-        <Button type="button" variant="outline" onClick={onBack}>
-          Volver
-        </Button>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" onClick={() => refetch()}>
+            Reintentar
+          </Button>
+          <Button type="button" variant="outline" onClick={onBack}>
+            Volver
+          </Button>
+        </div>
       </div>
     );
   }

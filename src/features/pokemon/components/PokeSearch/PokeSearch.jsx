@@ -37,6 +37,7 @@ export function PokeSearch() {
     isLoadingPokemons,
     isLoadingTypes,
     isError,
+    refetch,
   } = usePokemonSearch();
 
   return (
@@ -120,8 +121,16 @@ export function PokeSearch() {
 
       <div className="min-h-0 flex-1 overflow-y-auto px-1 py-5 sm:px-3">
         {isError ? (
-          <div className="rounded-xl border border-(--red-500) bg-red-50 p-4 text-sm text-(--red-500)">
-            No se pudieron cargar los Pokémon. Inténtalo de nuevo.
+          <div className="space-y-3 rounded-xl border border-(--red-500) bg-red-50 p-4 text-sm text-(--red-500)">
+            <p>No se pudieron cargar los Pokémon.</p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => refetch()}
+            >
+              Reintentar
+            </Button>
           </div>
         ) : isLoadingPokemons ? (
           <div className="grid grid-cols-2 gap-4 px-1 sm:grid-cols-3 sm:px-2 md:grid-cols-4 lg:px-3">

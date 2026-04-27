@@ -15,7 +15,12 @@ function formatStatValue(value) {
 }
 
 export function PokemonDetailStep({ pokemonId, onBack, onContinue }) {
-  const { data: pokemon, isLoading, isError } = usePokemonDetail(pokemonId);
+  const {
+    data: pokemon,
+    isLoading,
+    isError,
+    refetch,
+  } = usePokemonDetail(pokemonId);
 
   const stats = pokemon
     ? [
@@ -52,9 +57,14 @@ export function PokemonDetailStep({ pokemonId, onBack, onContinue }) {
         <div className="rounded-xl border border-(--red-500) bg-red-50 p-4 text-sm text-(--red-500)">
           No se pudo cargar el detalle del Pokémon.
         </div>
-        <Button type="button" variant="outline" onClick={onBack}>
-          Volver a búsqueda
-        </Button>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" onClick={() => refetch()}>
+            Reintentar
+          </Button>
+          <Button type="button" variant="outline" onClick={onBack}>
+            Volver a búsqueda
+          </Button>
+        </div>
       </div>
     );
   }
