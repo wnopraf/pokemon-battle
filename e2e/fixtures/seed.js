@@ -60,3 +60,31 @@ export async function seedStores(page, { teams = [], history = [] } = {}) {
     { teams, history },
   );
 }
+
+export function buildHistoryEntry({
+  id,
+  winnerTeam,
+  loserTeam,
+  rounds = 5,
+  date = Date.now(),
+  winner = "A",
+}) {
+  const teamA = winner === "A" ? winnerTeam : loserTeam;
+  const teamB = winner === "A" ? loserTeam : winnerTeam;
+  return {
+    id,
+    date,
+    winner,
+    rounds,
+    teamA: {
+      id: teamA.id,
+      name: teamA.name,
+      pokemonCount: teamA.pokemons.length,
+    },
+    teamB: {
+      id: teamB.id,
+      name: teamB.name,
+      pokemonCount: teamB.pokemons.length,
+    },
+  };
+}

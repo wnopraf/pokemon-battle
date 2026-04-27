@@ -1,7 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 import { mockPokeApi } from "./fixtures/pokeapi-mocks.js";
-import { buildPokemon, buildTeam, seedStores } from "./fixtures/seed.js";
+import {
+  buildHistoryEntry,
+  buildPokemon,
+  buildTeam,
+  seedStores,
+} from "./fixtures/seed.js";
 
 const teamFire = buildTeam({
   id: "team-fire",
@@ -164,5 +169,137 @@ test.describe("combate end-to-end", () => {
     const firstRow = page.locator("ul > li").first();
     await expect(firstRow).toContainText("Equipo Fuego");
     await expect(firstRow).toContainText("Equipo Agua");
+  });
+});
+
+test.describe("revancha desde la home", () => {
+  test("el banner muestra el último combate y el botón navega a /battle/play", async ({
+    page,
+  }) => {
+    const lastEntry = buildHistoryEntry({
+      id: "battle-last",
+      winnerTeam: teamFire,
+      loserTeam: teamWater,
+      rounds: 7,
+      winner: "A",
+    });
+
+    await seedStores(page, {
+      teams: [teamFire, teamWater],
+      history: [lastEntry],
+    });
+    await mockPokeApi(page);
+
+    await page.goto("/");
+
+    await expect(page.getByText(/último combate/i)).toBeVisible();
+    await expect(page.getByText(/en 7 turnos/i)).toBeVisible();
+
+    await page.getByRole("button", { name: /^revancha$/i }).click();
+
+    await expect(page).toHaveURL("/battle/play");
+    await expect(
+      page.getByRole("heading", { name: /combate en curso/i }),
+    ).toBeVisible();
+  });
+
+  test("la revancha se deshabilita si alguno de los equipos ya no existe", async ({
+    page,
+  }) => {
+    const staleEntry = buildHistoryEntry({
+      id: "battle-stale",
+      winnerTeam: teamFire,
+      loserTeam: { ...teamWater, id: "team-removed" },
+      rounds: 5,
+      winner: "A",
+    });
+
+    await seedStores(page, {
+      teams: [teamFire],
+      history: [staleEntry],
+    });
+
+    await page.goto("/");
+
+    const rematchButton = page.getByRole("button", { name: /^revancha$/i });
+    await expect(rematchButton).toBeDisabled();
+    await expect(
+      page.getByText(/uno de los equipos del combate ya no existe/i),
+    ).toBeVisible();
+  });
+});
+
+test.describe("historial de combates", () => {
+  test("muestra estadísticas agregadas y la lista completa", async ({
+    page,
+  }) => {
+    const history = [
+      buildHistoryEntry({
+        id: "b1",
+        winnerTeam: teamFire,
+        loserTeam: teamWater,
+        rounds: 6,
+        winner: "A",
+      }),
+      buildHistoryEntry({
+        id: "b2",
+        winnerTeam: teamFire,
+        loserTeam: teamWater,
+        rounds: 8,
+        winner: "A",
+      }),
+      buildHistoryEntry({
+        id: "b3",
+        winnerTeam: teamWater,
+        loserTeam: teamFire,
+        rounds: 10,
+        winner: "B",
+      }),
+    ];
+
+    await seedStores(page, { teams: [teamFire, teamWater], history });
+    await page.goto("/battle-history");
+
+    await expect(page.getByText(/3 combates registrados/i)).toBeVisible();
+    await expect(page.getByText(/equipo fuego · 2/i)).toBeVisible();
+    await expect(page.locator("ul > li")).toHaveCount(3);
+  });
+
+  test("permite limpiar el historial con confirmación", async ({ page }) => {
+    const history = [
+      buildHistoryEntry({
+        id: "b1",
+        winnerTeam: teamFire,
+        loserTeam: teamWater,
+        rounds: 5,
+        winner: "A",
+      }),
+    ];
+
+    await seedStores(page, { teams: [teamFire, teamWater], history });
+    await page.goto("/battle-history");
+
+    await page.getByRole("button", { name: /limpiar historial/i }).click();
+
+    await expect(
+      page.getByRole("heading", { name: /¿borrar el historial\?/i }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: /^borrar historial$/i }).click();
+
+    await expect(
+      page.getByText(/aún no has jugado ningún combate/i),
+    ).toBeVisible();
+  });
+
+  test("estado vacío con CTA cuando no hay historial", async ({ page }) => {
+    await seedStores(page, { teams: [], history: [] });
+    await page.goto("/battle-history");
+
+    await expect(
+      page.getByText(/aún no has jugado ningún combate/i),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /iniciar un combate/i }),
+    ).toBeVisible();
   });
 });
