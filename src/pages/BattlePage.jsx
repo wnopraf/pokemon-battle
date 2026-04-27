@@ -1,5 +1,5 @@
 import { CircleDot, Crown, Shield, Swords } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -63,10 +63,18 @@ export function BattlePage() {
   const rounds = useMemo(() => battleResult?.rounds ?? [], [battleResult]);
   const battleId = `${teamA?.id ?? "none"}-${teamB?.id ?? "none"}-${rounds.length}`;
 
+  const recordedSignatureRef = useRef(null);
+
   useEffect(() => {
     if (!teamA?.pokemons?.length || !teamB?.pokemons?.length) {
       return;
     }
+
+    const signature = `${teamA.id}-${teamA.updatedAt ?? ""}-${teamB.id}-${teamB.updatedAt ?? ""}`;
+    if (recordedSignatureRef.current === signature) {
+      return;
+    }
+    recordedSignatureRef.current = signature;
 
     const result = simulateBattle(teamA.pokemons, teamB.pokemons);
     setBattleResult(result);
