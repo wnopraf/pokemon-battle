@@ -108,3 +108,61 @@ test.describe("edición de equipo", () => {
     await expect(page.getByText("Equipo Renombrado")).toBeVisible();
   });
 });
+
+test.describe("combate end-to-end", () => {
+  test("seleccionar dos equipos, iniciar combate y verlo en el historial", async ({
+    page,
+  }) => {
+    await seedStores(page, { teams: [teamFire, teamWater] });
+    await mockPokeApi(page);
+
+    await page.goto("/battle");
+
+    await expect(
+      page.getByRole("heading", {
+        name: /seleccionar equipos para el combate/i,
+      }),
+    ).toBeVisible();
+
+    const selects = page.locator('[role="combobox"]');
+    await selects.nth(0).click();
+    await page.getByRole("option", { name: "Equipo Fuego" }).click();
+
+    await selects.nth(1).click();
+    await page.getByRole("option", { name: "Equipo Agua" }).click();
+
+    const startButton = page.getByRole("button", { name: /comenzar combate/i });
+    await expect(startButton).toBeEnabled();
+    await startButton.click();
+
+    await expect(page).toHaveURL("/battle/play");
+    await expect(
+      page.getByRole("heading", { name: /combate en curso/i }),
+    ).toBeVisible();
+
+    await page.waitForFunction(() => {
+      const raw = window.localStorage.getItem("battle-store");
+      if (!raw) return false;
+      try {
+        const parsed = JSON.parse(raw);
+        return (parsed?.state?.history?.length ?? 0) > 0;
+      } catch {
+        return false;
+      }
+    });
+
+    await page
+      .getByRole("link", { name: "Historial", exact: true })
+      .click();
+
+    await expect(page).toHaveURL("/battle-history");
+    await expect(
+      page.getByRole("heading", { name: /historial de combates/i }),
+    ).toBeVisible();
+    await expect(page.getByText(/1 combates registrados/i)).toBeVisible();
+
+    const firstRow = page.locator("ul > li").first();
+    await expect(firstRow).toContainText("Equipo Fuego");
+    await expect(firstRow).toContainText("Equipo Agua");
+  });
+});
