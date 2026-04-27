@@ -1,5 +1,7 @@
 # Pokémon Battle
 
+**[🔗 Ver demo en vivo →](https://pokemon-battle-1ob.pages.dev/)**
+
 App de gestión de equipos y combates Pokémon construida sobre **React 18.3** y **React Router 6.26**, con un enfoque claro hacia el desacoplamiento entre dominio y vista.
 
 ## Arquitectura
