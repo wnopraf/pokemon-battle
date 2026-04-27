@@ -1,16 +1,52 @@
-import { ArrowRight, Bolt, LayoutGrid, Plus, Sparkles, Swords, Users } from "lucide-react";
+import {
+  ArrowRight,
+  Bolt,
+  History,
+  LayoutGrid,
+  Plus,
+  Sparkles,
+  Swords,
+  Trophy,
+  Users,
+} from "lucide-react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useBattleStore } from "@/features/battle/battle.store";
 import { TeamCard } from "@/features/teams/components/TeamCard";
 import { useTeamsStore } from "@/features/teams/teams.store";
+
+const RECENT_HISTORY_LIMIT = 5;
+
+function formatRelativeTime(timestamp) {
+  if (!timestamp) return "";
+  const diff = Date.now() - timestamp;
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 1) return "ahora mismo";
+  if (minutes < 60) return `hace ${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `hace ${hours} h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `hace ${days} d`;
+  return new Date(timestamp).toLocaleDateString();
+}
+
+function getBattleParticipants(entry) {
+  if (!entry) return null;
+  const winner = entry.winner === "A" ? entry.teamA : entry.teamB;
+  const loser = entry.winner === "A" ? entry.teamB : entry.teamA;
+  return { winner, loser };
+}
 
 export default function HomePage() {
   const navigate = useNavigate();
   const teams = useTeamsStore((s) => s.teams);
   const draftTeam = useTeamsStore((s) => s.draftTeam);
   const startDraft = useTeamsStore((s) => s.startDraft);
+  const selectBattleTeams = useTeamsStore((s) => s.selectBattleTeams);
+  const history = useBattleStore((s) => s.history);
 
   const hasDraft =
     Boolean(draftTeam?.name?.trim()) || (draftTeam?.pokemons?.length ?? 0) > 0;
@@ -24,7 +60,25 @@ export default function HomePage() {
     .sort((a, b) => (b.updatedAt ?? 0) - (a.updatedAt ?? 0))
     .slice(0, 3);
 
-  const isEmpty = teams.length === 0 && !hasDraft;
+  const recentBattles = useMemo(
+    () => history.slice(0, RECENT_HISTORY_LIMIT),
+    [history],
+  );
+
+  const lastBattle = history[0] ?? null;
+  const lastBattleParticipants = getBattleParticipants(lastBattle);
+  const canRematch =
+    Boolean(lastBattle) &&
+    teams.some((t) => t.id === lastBattle.teamA.id) &&
+    teams.some((t) => t.id === lastBattle.teamB.id);
+
+  const handleRematch = () => {
+    if (!lastBattle || !canRematch) return;
+    selectBattleTeams(lastBattle.teamA.id, lastBattle.teamB.id);
+    navigate("/battle/play");
+  };
+
+  const isEmpty = teams.length === 0 && !hasDraft && history.length === 0;
 
   const handleCreateTeam = () => {
     startDraft();
@@ -114,9 +168,50 @@ export default function HomePage() {
         </button>
       ) : null}
 
+      {/* Último combate (revancha) */}
+      {lastBattle && lastBattleParticipants ? (
+        <section className="rounded-2xl border border-(--gray-200) bg-white p-5 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex size-11 items-center justify-center rounded-xl bg-(--amber-50) text-(--amber-600)">
+                <Trophy className="size-5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-(--gray-500)">
+                  Último combate · {formatRelativeTime(lastBattle.date)}
+                </p>
+                <p className="mt-0.5 text-sm text-(--gray-900)">
+                  <span className="font-semibold text-(--gray-900)">
+                    {lastBattleParticipants.winner.name || "Equipo sin nombre"}
+                  </span>{" "}
+                  venció a{" "}
+                  <span className="font-medium text-(--gray-700)">
+                    {lastBattleParticipants.loser.name || "Equipo sin nombre"}
+                  </span>{" "}
+                  en {lastBattle.rounds} turnos.
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={handleRematch}
+              disabled={!canRematch}
+              className="h-10 gap-2 bg-(--blue-500) px-4 text-sm font-semibold text-white hover:bg-(--blue-600) disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Swords className="size-4" />
+              Revancha
+            </Button>
+          </div>
+          {!canRematch ? (
+            <p className="mt-3 text-xs text-(--gray-500)">
+              Uno de los equipos del combate ya no existe, no se puede repetir.
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
       {/* Stats */}
       {!isEmpty ? (
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard
             icon={Users}
             label="Equipos guardados"
@@ -128,6 +223,12 @@ export default function HomePage() {
             label="Pokémon en tus equipos"
             value={totalPokemons}
             tone="red"
+          />
+          <StatCard
+            icon={Swords}
+            label="Combates jugados"
+            value={history.length}
+            tone="amber"
           />
         </section>
       ) : null}
@@ -163,6 +264,39 @@ export default function HomePage() {
               />
             ))}
           </div>
+        </section>
+      ) : null}
+
+      {/* Historial reciente */}
+      {recentBattles.length > 0 ? (
+        <section>
+          <div className="mb-4 flex items-end justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-(--gray-900)">
+                Historial reciente
+              </h2>
+              <p className="text-sm text-(--gray-500)">
+                Últimos combates jugados.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate("/battle-history")}
+              className="text-xs font-medium text-(--blue-600) hover:text-(--blue-700)"
+            >
+              Ver todos →
+            </button>
+          </div>
+
+          <Card className="rounded-2xl border-(--gray-200) bg-white shadow-sm">
+            <CardContent className="px-0 py-0">
+              <ul className="divide-y divide-(--gray-100)">
+                {recentBattles.map((battle) => (
+                  <BattleHistoryRow key={battle.id} battle={battle} />
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         </section>
       ) : null}
 
@@ -275,6 +409,39 @@ function BattleIllustration({ className }) {
         <ellipse cx="55" cy="40" rx="18" ry="10" fill="#fff" opacity="0.6" />
       </g>
     </svg>
+  );
+}
+
+function BattleHistoryRow({ battle }) {
+  const participants = getBattleParticipants(battle);
+  if (!participants) return null;
+
+  return (
+    <li className="flex items-center justify-between gap-4 px-5 py-4">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-(--gray-50) text-(--gray-500)">
+          <History className="size-4" />
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-sm text-(--gray-900)">
+            <span className="font-semibold">
+              {participants.winner.name || "Equipo sin nombre"}
+            </span>
+            <span className="mx-1.5 text-(--gray-400)">vs</span>
+            <span className="text-(--gray-700)">
+              {participants.loser.name || "Equipo sin nombre"}
+            </span>
+          </p>
+          <p className="text-xs text-(--gray-500)">
+            {battle.rounds} turnos · {formatRelativeTime(battle.date)}
+          </p>
+        </div>
+      </div>
+      <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-(--amber-50) px-2.5 py-1 text-xs font-semibold text-(--amber-600)">
+        <Trophy className="size-3" />
+        Victoria
+      </span>
+    </li>
   );
 }
 

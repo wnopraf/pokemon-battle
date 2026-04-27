@@ -2,11 +2,17 @@ import { useEffect } from "react";
 import { MemoryRouter } from "react-router-dom";
 
 import HomePage from "@/pages/HomePage";
+import { useBattleStore } from "@/features/battle/battle.store";
 import { useTeamsStore } from "@/features/teams/teams.store";
 
-function HomePageStoryWrapper({ teams = [], draftTeam = null }) {
+function HomePageStoryWrapper({
+  teams = [],
+  draftTeam = null,
+  history = [],
+}) {
   useEffect(() => {
-    const previous = useTeamsStore.getState();
+    const previousTeams = useTeamsStore.getState();
+    const previousBattle = useBattleStore.getState();
 
     useTeamsStore.setState({
       teams,
@@ -19,13 +25,16 @@ function HomePageStoryWrapper({ teams = [], draftTeam = null }) {
       },
     });
 
+    useBattleStore.setState({ history });
+
     return () => {
       useTeamsStore.setState({
-        teams: previous.teams,
-        draftTeam: previous.draftTeam,
+        teams: previousTeams.teams,
+        draftTeam: previousTeams.draftTeam,
       });
+      useBattleStore.setState({ history: previousBattle.history });
     };
-  }, [teams, draftTeam]);
+  }, [teams, draftTeam, history]);
 
   return (
     <MemoryRouter initialEntries={["/"]}>
@@ -37,6 +46,57 @@ function HomePageStoryWrapper({ teams = [], draftTeam = null }) {
     </MemoryRouter>
   );
 }
+
+const minute = 60 * 1000;
+const hour = 60 * minute;
+const day = 24 * hour;
+
+const mockHistoryFull = [
+  {
+    id: "battle-1",
+    date: Date.now() - 5 * minute,
+    winner: "A",
+    rounds: 8,
+    teamA: { id: "team-fire", name: "Equipo Fuego", pokemonCount: 6 },
+    teamB: { id: "team-water", name: "Equipo Agua", pokemonCount: 4 },
+  },
+  {
+    id: "battle-2",
+    date: Date.now() - 2 * hour,
+    winner: "B",
+    rounds: 12,
+    teamA: { id: "team-grass", name: "Equipo Planta", pokemonCount: 3 },
+    teamB: { id: "team-fire", name: "Equipo Fuego", pokemonCount: 6 },
+  },
+  {
+    id: "battle-3",
+    date: Date.now() - 1 * day,
+    winner: "A",
+    rounds: 6,
+    teamA: { id: "team-water", name: "Equipo Agua", pokemonCount: 4 },
+    teamB: { id: "team-grass", name: "Equipo Planta", pokemonCount: 3 },
+  },
+  {
+    id: "battle-4",
+    date: Date.now() - 3 * day,
+    winner: "B",
+    rounds: 9,
+    teamA: { id: "team-fire", name: "Equipo Fuego", pokemonCount: 6 },
+    teamB: { id: "team-water", name: "Equipo Agua", pokemonCount: 4 },
+  },
+];
+
+// Historial donde uno de los equipos ya no existe (revancha bloqueada)
+const mockHistoryStale = [
+  {
+    id: "battle-stale",
+    date: Date.now() - 30 * minute,
+    winner: "A",
+    rounds: 7,
+    teamA: { id: "team-fire", name: "Equipo Fuego", pokemonCount: 6 },
+    teamB: { id: "team-deleted", name: "Equipo Borrado", pokemonCount: 4 },
+  },
+];
 
 const mockTeamFire = [
   { id: 6, name: "charizard", image: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png" },
@@ -98,4 +158,48 @@ export const WithDraft = {
 
 export const Empty = {
   render: () => <HomePageStoryWrapper teams={[]} />,
+};
+
+export const WithBattleHistory = {
+  render: () => (
+    <HomePageStoryWrapper
+      teams={[
+        { id: "team-fire", name: "Equipo Fuego", pokemons: mockTeamFire, updatedAt: Date.now() },
+        { id: "team-water", name: "Equipo Agua", pokemons: mockTeamWater, updatedAt: Date.now() - 1000 * 60 * 60 },
+        { id: "team-grass", name: "Equipo Planta", pokemons: mockTeamGrass, updatedAt: Date.now() - 1000 * 60 * 60 * 24 },
+      ]}
+      history={mockHistoryFull}
+    />
+  ),
+};
+
+export const RematchUnavailable = {
+  render: () => (
+    <HomePageStoryWrapper
+      teams={[
+        { id: "team-fire", name: "Equipo Fuego", pokemons: mockTeamFire, updatedAt: Date.now() },
+      ]}
+      history={mockHistoryStale}
+    />
+  ),
+};
+
+export const FullDashboard = {
+  render: () => (
+    <HomePageStoryWrapper
+      teams={[
+        { id: "team-fire", name: "Equipo Fuego", pokemons: mockTeamFire, updatedAt: Date.now() },
+        { id: "team-water", name: "Equipo Agua", pokemons: mockTeamWater, updatedAt: Date.now() - 1000 * 60 * 60 },
+        { id: "team-grass", name: "Equipo Planta", pokemons: mockTeamGrass, updatedAt: Date.now() - 1000 * 60 * 60 * 24 },
+      ]}
+      draftTeam={{
+        id: "draft-123",
+        name: "Equipo Eléctrico",
+        pokemons: mockTeamGrass.slice(0, 2),
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      }}
+      history={mockHistoryFull}
+    />
+  ),
 };
