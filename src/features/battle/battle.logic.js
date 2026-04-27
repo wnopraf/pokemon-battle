@@ -1,3 +1,35 @@
+export const MAX_BATTLE_HISTORY = 50;
+
+export function createBattleId() {
+  return `battle-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function toTeamSnapshot(team) {
+  return {
+    id: team?.id ?? null,
+    name: team?.name ?? "",
+    pokemonCount: team?.pokemons?.length ?? 0,
+  };
+}
+
+export function createHistoryEntry(result, teamA, teamB) {
+  if (!result || !teamA || !teamB) return null;
+
+  return {
+    id: createBattleId(),
+    date: Date.now(),
+    winner: result.winner,
+    rounds: Array.isArray(result.rounds) ? result.rounds.length : 0,
+    teamA: toTeamSnapshot(teamA),
+    teamB: toTeamSnapshot(teamB),
+  };
+}
+
+export function appendHistoryEntry(history, entry, max = MAX_BATTLE_HISTORY) {
+  if (!entry) return history;
+  return [entry, ...history].slice(0, max);
+}
+
 export function simulateBattle(teamA, teamB) {
   let i = 0;
   let j = 0;

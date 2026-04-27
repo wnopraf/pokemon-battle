@@ -43,6 +43,7 @@ export function BattlePage() {
   const battleResult = useBattleStore((store) => store.battleResult);
   const setBattleResult = useBattleStore((store) => store.setBattleResult);
   const resetBattle = useBattleStore((store) => store.resetBattle);
+  const recordBattle = useBattleStore((store) => store.recordBattle);
 
   const [roundPlayback, setRoundPlayback] = useState({
     battleId: null,
@@ -69,7 +70,8 @@ export function BattlePage() {
 
     const result = simulateBattle(teamA.pokemons, teamB.pokemons);
     setBattleResult(result);
-  }, [setBattleResult, teamA, teamB]);
+    recordBattle(result, teamA, teamB);
+  }, [setBattleResult, recordBattle, teamA, teamB]);
 
   useEffect(() => {
     if (!rounds.length) return;

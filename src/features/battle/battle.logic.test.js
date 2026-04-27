@@ -1,4 +1,11 @@
-import { fight, simulateBattle } from "./battle.logic";
+import {
+  appendHistoryEntry,
+  createBattleId,
+  createHistoryEntry,
+  fight,
+  simulateBattle,
+  toTeamSnapshot,
+} from "./battle.logic";
 
 const createPokemon = (overrides) => ({
   name: "test",
@@ -124,5 +131,92 @@ describe("simulateBattle", () => {
 
     expect(result).toBeDefined();
     expect(result.rounds.length).toBe(0);
+  });
+});
+
+describe("createBattleId", () => {
+  test("returns a unique id with the battle prefix", () => {
+    const id1 = createBattleId();
+    const id2 = createBattleId();
+
+    expect(id1).toMatch(/^battle-\d+-[a-z0-9]{6}$/);
+    expect(id1).not.toBe(id2);
+  });
+});
+
+describe("toTeamSnapshot", () => {
+  test("extracts id, name and pokemon count", () => {
+    const snapshot = toTeamSnapshot({
+      id: "t1",
+      name: "Fire",
+      pokemons: [{ id: 1 }, { id: 2 }],
+    });
+
+    expect(snapshot).toEqual({ id: "t1", name: "Fire", pokemonCount: 2 });
+  });
+
+  test("returns safe defaults for missing fields", () => {
+    expect(toTeamSnapshot(null)).toEqual({
+      id: null,
+      name: "",
+      pokemonCount: 0,
+    });
+    expect(toTeamSnapshot({})).toEqual({
+      id: null,
+      name: "",
+      pokemonCount: 0,
+    });
+  });
+});
+
+describe("createHistoryEntry", () => {
+  const teamA = { id: "a", name: "A", pokemons: [{ id: 1 }] };
+  const teamB = { id: "b", name: "B", pokemons: [{ id: 2 }] };
+  const result = { winner: "A", rounds: [{}, {}, {}] };
+
+  test("returns null when arguments are missing", () => {
+    expect(createHistoryEntry(null, teamA, teamB)).toBeNull();
+    expect(createHistoryEntry(result, null, teamB)).toBeNull();
+    expect(createHistoryEntry(result, teamA, null)).toBeNull();
+  });
+
+  test("builds an entry with snapshots and round count", () => {
+    const entry = createHistoryEntry(result, teamA, teamB);
+
+    expect(entry).toMatchObject({
+      winner: "A",
+      rounds: 3,
+      teamA: { id: "a", name: "A", pokemonCount: 1 },
+      teamB: { id: "b", name: "B", pokemonCount: 1 },
+    });
+    expect(entry.id).toEqual(expect.any(String));
+    expect(entry.date).toEqual(expect.any(Number));
+  });
+
+  test("handles results without rounds array", () => {
+    const entry = createHistoryEntry({ winner: "B" }, teamA, teamB);
+    expect(entry.rounds).toBe(0);
+  });
+});
+
+describe("appendHistoryEntry", () => {
+  const entry = (id) => ({ id });
+
+  test("prepends the entry at the beginning", () => {
+    const result = appendHistoryEntry([entry("a")], entry("b"));
+    expect(result.map((e) => e.id)).toEqual(["b", "a"]);
+  });
+
+  test("respects the max history size", () => {
+    const history = [entry("1"), entry("2"), entry("3")];
+    const result = appendHistoryEntry(history, entry("4"), 3);
+
+    expect(result).toHaveLength(3);
+    expect(result.map((e) => e.id)).toEqual(["4", "1", "2"]);
+  });
+
+  test("returns history unchanged when entry is null", () => {
+    const history = [entry("1")];
+    expect(appendHistoryEntry(history, null)).toBe(history);
   });
 });
