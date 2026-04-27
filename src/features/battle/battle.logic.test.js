@@ -51,6 +51,20 @@ describe("fight", () => {
 
     expect(winner).toBe(a);
   });
+
+  test("returns the first argument when both Pokémon have identical stats", () => {
+    const a = createPokemon({ speed: 50, attack: 50, defense: 50 });
+    const b = createPokemon({ speed: 50, attack: 50, defense: 50 });
+
+    expect(fight(a, b)).toBe(a);
+  });
+
+  test("returns the first argument on attack === defense exact tie", () => {
+    const a = createPokemon({ speed: 100, attack: 50, defense: 50 });
+    const b = createPokemon({ speed: 50, attack: 50, defense: 50 });
+
+    expect(fight(a, b)).toBe(a);
+  });
 });
 
 describe("simulateBattle", () => {
@@ -131,6 +145,42 @@ describe("simulateBattle", () => {
 
     expect(result).toBeDefined();
     expect(result.rounds.length).toBe(0);
+  });
+
+  test("declares team B winner when team A is empty", () => {
+    const teamB = [createPokemon({ name: "B1" })];
+    const result = simulateBattle([], teamB);
+
+    expect(result.winner).toBe("B");
+    expect(result.rounds).toHaveLength(0);
+    expect(result.summary.teamB.alive).toEqual(teamB);
+  });
+
+  test("a single strong pokemon can defeat a larger weak team", () => {
+    const teamA = [createPokemon({ name: "A1", attack: 100, defense: 100 })];
+    const teamB = [
+      createPokemon({ name: "B1", attack: 30, defense: 10 }),
+      createPokemon({ name: "B2", attack: 30, defense: 10 }),
+      createPokemon({ name: "B3", attack: 30, defense: 10 }),
+    ];
+
+    const result = simulateBattle(teamA, teamB);
+
+    expect(result.winner).toBe("A");
+    expect(result.rounds).toHaveLength(3);
+    expect(result.summary.teamA.alive).toHaveLength(1);
+    expect(result.summary.teamB.defeated).toHaveLength(3);
+  });
+
+  test("is deterministic for identical inputs", () => {
+    const teamA = [createPokemon({ name: "A1", attack: 100 })];
+    const teamB = [createPokemon({ name: "B1", defense: 10 })];
+
+    const r1 = simulateBattle(teamA, teamB);
+    const r2 = simulateBattle(teamA, teamB);
+
+    expect(r1.winner).toBe(r2.winner);
+    expect(r1.rounds.length).toBe(r2.rounds.length);
   });
 });
 
