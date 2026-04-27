@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import AppLayout from "./layout";
+import RouteErrorBoundary from "./RouteErrorBoundary";
 
 import TeamsPage from "@/pages/TeamsPage";
 import TeamBuilderPage from "@/pages/TeamBuilderPage";
@@ -14,6 +15,7 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         index: true,
