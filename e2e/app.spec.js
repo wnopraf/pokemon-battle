@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 
+import { mockPokeApi } from "./fixtures/pokeapi-mocks.js";
 import { buildPokemon, buildTeam, seedStores } from "./fixtures/seed.js";
 
 const teamFire = buildTeam({
@@ -80,5 +81,30 @@ test.describe("persistencia", () => {
 
     await expect(page.getByText("Equipo Fuego")).toBeVisible();
     await expect(page.getByText("Equipo Agua")).toBeVisible();
+  });
+});
+
+test.describe("edición de equipo", () => {
+  test("permite renombrar un equipo y persistir el cambio", async ({
+    page,
+  }) => {
+    await seedStores(page, { teams: [teamFire] });
+    await mockPokeApi(page);
+
+    await page.goto(`/teams/${teamFire.id}`);
+
+    await expect(
+      page.getByRole("heading", { name: /editar equipo/i }),
+    ).toBeVisible();
+
+    const nameInput = page.getByLabel(/nombre del equipo/i);
+    await expect(nameInput).toHaveValue(teamFire.name);
+
+    await nameInput.fill("Equipo Renombrado");
+
+    await page.getByRole("button", { name: /guardar cambios/i }).click();
+
+    await expect(page).toHaveURL(/\/teams$/);
+    await expect(page.getByText("Equipo Renombrado")).toBeVisible();
   });
 });
