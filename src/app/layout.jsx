@@ -8,10 +8,11 @@ import {
   User,
   UserCircle2,
 } from "lucide-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import pokeBallIcon from "@/assets/poke-ball.svg";
+import PageLoader from "./PageLoader";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -169,7 +170,9 @@ export default function AppLayout() {
                 </button>
               </div>
             ) : null}
-            <Outlet />
+            <Suspense fallback={<PageLoader />}>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
       </div>

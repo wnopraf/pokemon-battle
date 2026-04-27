@@ -3,13 +3,10 @@ import { createBrowserRouter } from "react-router-dom";
 import AppLayout from "./layout";
 import RouteErrorBoundary from "./RouteErrorBoundary";
 
-import TeamsPage from "@/pages/TeamsPage";
-import TeamBuilderPage from "@/pages/TeamBuilderPage";
-import BattleSetupPage from "@/pages/BattleSetupPage";
-import BattlePage from "@/pages/BattlePage";
-import BattleResultPage from "@/pages/BattleResultPage";
-import BattleHistoryPage from "@/pages/BattleHistoryPage";
-import HomePage from "@/pages/HomePage";
+const lazyPage = (loader) => async () => {
+  const module = await loader();
+  return { Component: module.default };
+};
 
 export const router = createBrowserRouter([
   {
@@ -19,36 +16,35 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <HomePage />,
+        lazy: lazyPage(() => import("@/pages/HomePage")),
       },
       {
         path: "teams",
-        element: <TeamsPage />,
+        lazy: lazyPage(() => import("@/pages/TeamsPage")),
       },
       {
         path: "teams/new",
-        element: <TeamBuilderPage />,
+        lazy: lazyPage(() => import("@/pages/TeamBuilderPage")),
       },
       {
         path: "teams/:id",
-        element: <TeamBuilderPage />,
+        lazy: lazyPage(() => import("@/pages/TeamBuilderPage")),
       },
-
       {
         path: "battle",
-        element: <BattleSetupPage />,
+        lazy: lazyPage(() => import("@/pages/BattleSetupPage")),
       },
       {
         path: "battle/play",
-        element: <BattlePage />,
+        lazy: lazyPage(() => import("@/pages/BattlePage")),
       },
       {
         path: "battle/result",
-        element: <BattleResultPage />,
+        lazy: lazyPage(() => import("@/pages/BattleResultPage")),
       },
       {
         path: "battle-history",
-        element: <BattleHistoryPage />,
+        lazy: lazyPage(() => import("@/pages/BattleHistoryPage")),
       },
     ],
   },
