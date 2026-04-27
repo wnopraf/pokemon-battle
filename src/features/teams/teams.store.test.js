@@ -40,7 +40,9 @@ describe("teams.store", () => {
     const state = useTeamsStore.getState();
 
     expect(state.draftTeam.pokemons).toEqual([pikachu]);
-    expect(JSON.parse(localStorage.getItem("teams-draft-v2"))).toMatchObject({
+    expect(
+      JSON.parse(localStorage.getItem("teams-store")).state.draftTeam,
+    ).toMatchObject({
       id: draftId,
       pokemons: [pikachu],
     });
@@ -78,7 +80,9 @@ describe("teams.store", () => {
     const state = useTeamsStore.getState();
 
     expect(state.draftTeam.pokemons).toEqual([]);
-    expect(JSON.parse(localStorage.getItem("teams-draft-v2"))).toMatchObject({
+    expect(
+      JSON.parse(localStorage.getItem("teams-store")).state.draftTeam,
+    ).toMatchObject({
       id: draftId,
       pokemons: [],
     });
@@ -96,7 +100,9 @@ describe("teams.store", () => {
     const state = useTeamsStore.getState();
 
     expect(state.draftTeam.pokemons).toEqual([charmander, pikachu]);
-    expect(JSON.parse(localStorage.getItem("teams-draft-v2"))).toMatchObject({
+    expect(
+      JSON.parse(localStorage.getItem("teams-store")).state.draftTeam,
+    ).toMatchObject({
       id: draftId,
       pokemons: [charmander, pikachu],
     });
@@ -169,7 +175,9 @@ describe("teams.store", () => {
       pokemons: [pikachu],
     });
 
-    expect(JSON.parse(localStorage.getItem("teams-saved-v2"))).toHaveLength(1);
+    expect(
+      JSON.parse(localStorage.getItem("teams-store")).state.teams,
+    ).toHaveLength(1);
   });
 
   it("canBattle returns true only when two different selected teams have pokemon", () => {
@@ -205,7 +213,7 @@ describe("teams.store", () => {
     expect(canBattle()).toBe(true);
   });
 
-  it("hydrates v2 state from localStorage", () => {
+  it("migrates legacy v2 keys into the new persisted store", () => {
     const draftTeam = {
       id: "draft-local",
       name: "Draft local",
@@ -224,8 +232,9 @@ describe("teams.store", () => {
       },
     ];
 
+    // Simulate a fresh load: only legacy keys exist, no new key yet
+    localStorage.clear();
     localStorage.setItem("teams-draft-v2", JSON.stringify(draftTeam));
-
     localStorage.setItem("teams-saved-v2", JSON.stringify(teams));
 
     jest.resetModules();
@@ -236,5 +245,12 @@ describe("teams.store", () => {
 
     expect(state.draftTeam).toMatchObject(draftTeam);
     expect(state.teams).toEqual(teams);
+    // Legacy keys should be cleaned up after migration
+    expect(localStorage.getItem("teams-draft-v2")).toBeNull();
+    expect(localStorage.getItem("teams-saved-v2")).toBeNull();
+    // New consolidated key should exist
+    expect(JSON.parse(localStorage.getItem("teams-store"))).toMatchObject({
+      state: { teams, draftTeam },
+    });
   });
 });

@@ -1,247 +1,197 @@
 import { create } from "zustand";
-import { canStartBattle, removePokemonFromTeam } from "./teams.logic";
+import { createJSONStorage, persist } from "zustand/middleware";
 
-const DRAFT_KEY = "teams-draft-v2";
-const SAVED_KEY = "teams-saved-v2";
+import {
+  canStartBattleBetween,
+  clearBattleSelectionFor,
+  createEmptyDraftTeam,
+  isPokemonInOtherTeam,
+  isValidDraftSort,
+  removePokemonFromTeam,
+  removeTeamById,
+  reorderPokemons,
+  upsertTeam,
+} from "./teams.logic";
 
-const createTeamId = () =>
-  `team-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const STORE_KEY = "teams-store";
+const LEGACY_DRAFT_KEY = "teams-draft-v2";
+const LEGACY_SAVED_KEY = "teams-saved-v2";
 
-const createEmptyDraftTeam = () => ({
-  id: createTeamId(),
-  name: "",
-  pokemons: [],
-  createdAt: Date.now(),
-  updatedAt: Date.now(),
-});
 
-const loadDraft = () => {
+const migrateLegacyKeys = () => {
+  if (typeof localStorage === "undefined") return;
+  if (localStorage.getItem(STORE_KEY)) return;
+
   try {
-    const data = localStorage.getItem(DRAFT_KEY);
-    if (!data) return createEmptyDraftTeam();
-    const parsed = JSON.parse(data);
+    const rawDraft = localStorage.getItem(LEGACY_DRAFT_KEY);
+    const rawTeams = localStorage.getItem(LEGACY_SAVED_KEY);
+    if (!rawDraft && !rawTeams) return;
 
-    if (!parsed || !parsed.id || !Array.isArray(parsed.pokemons)) {
-      return createEmptyDraftTeam();
-    }
+    const draftTeam = rawDraft ? JSON.parse(rawDraft) : null;
+    const teams = rawTeams ? JSON.parse(rawTeams) : null;
 
-    return parsed;
-  } catch {
-    return createEmptyDraftTeam();
-  }
-};
-
-const loadTeams = () => {
-  try {
-    const data = localStorage.getItem(SAVED_KEY);
-    if (!data) return [];
-
-    const parsed = JSON.parse(data);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed;
-  } catch {
-    return [];
-  }
-};
-
-const persistDraft = (draftTeam) => {
-  localStorage.setItem(DRAFT_KEY, JSON.stringify(draftTeam));
-};
-
-const persistTeams = (teams) => {
-  localStorage.setItem(SAVED_KEY, JSON.stringify(teams));
-};
-
-const initialDraft = loadDraft();
-const initialTeams = loadTeams();
-
-const isDuplicatePokemon = (teams, draftTeamId, pokemonId) => {
-  return teams.some(
-    (team) =>
-      team.id !== draftTeamId && team.pokemons.some((p) => p.id === pokemonId),
-  );
-};
-
-const DRAFT_SORT_OPTIONS = ["manual", "name", "attack", "random"];
-
-export const useTeamsStore = create((set, get) => ({
-  draftTeam: initialDraft,
-  teams: initialTeams,
-  draftPokemonSort: "manual",
-  battleSelection: {
-    teamAId: null,
-    teamBId: null,
-  },
-
-  startDraft: (initial = {}) => {
-    const nextDraft = {
-      ...createEmptyDraftTeam(),
-      ...initial,
-      pokemons: Array.isArray(initial.pokemons) ? initial.pokemons : [],
-      updatedAt: Date.now(),
-    };
-
-    persistDraft(nextDraft);
-    set({ draftTeam: nextDraft });
-  },
-
-  setDraftPokemonSort: (sort) => {
-    if (!DRAFT_SORT_OPTIONS.includes(sort)) return;
-    set({ draftPokemonSort: sort });
-  },
-
-  setDraftTeamName: (name) => {
-    const { draftTeam } = get();
-    const nextDraft = {
-      ...draftTeam,
-      name,
-      updatedAt: Date.now(),
-    };
-
-    persistDraft(nextDraft);
-    set({ draftTeam: nextDraft });
-  },
-
-  addPokemon: (teamId, pokemon) => {
-    const { draftTeam, teams } = get();
-    if (!pokemon || teamId !== draftTeam.id) return;
-    if (draftTeam.pokemons.some((p) => p.id === pokemon.id)) return;
-    if (isDuplicatePokemon(teams, draftTeam.id, pokemon.id)) return;
-    if (draftTeam.pokemons.length >= 6) return;
-
-    const nextDraft = {
-      ...draftTeam,
-      pokemons: [...draftTeam.pokemons, pokemon],
-      updatedAt: Date.now(),
-    };
-
-    persistDraft(nextDraft);
-    set({ draftTeam: nextDraft });
-  },
-
-  removePokemon: (teamId, pokemonId) => {
-    const { draftTeam } = get();
-    if (teamId !== draftTeam.id) return;
-
-    const nextDraft = {
-      ...draftTeam,
-      pokemons: removePokemonFromTeam(draftTeam.pokemons, pokemonId),
-      updatedAt: Date.now(),
-    };
-
-    persistDraft(nextDraft);
-    set({ draftTeam: nextDraft });
-  },
-
-  reorderDraftPokemons: (teamId, startIndex, finishIndex) => {
-    const { draftTeam } = get();
-    if (teamId !== draftTeam.id) return;
-    if (
-      !Number.isInteger(startIndex) ||
-      !Number.isInteger(finishIndex) ||
-      startIndex === finishIndex
-    ) {
-      return;
-    }
-
-    const maxIndex = draftTeam.pokemons.length - 1;
-    if (
-      startIndex < 0 ||
-      finishIndex < 0 ||
-      startIndex > maxIndex ||
-      finishIndex > maxIndex
-    ) {
-      return;
-    }
-
-    const nextPokemons = [...draftTeam.pokemons];
-    const [movedPokemon] = nextPokemons.splice(startIndex, 1);
-    nextPokemons.splice(finishIndex, 0, movedPokemon);
-
-    const nextDraft = {
-      ...draftTeam,
-      pokemons: nextPokemons,
-      updatedAt: Date.now(),
-    };
-
-    persistDraft(nextDraft);
-    set({ draftTeam: nextDraft });
-  },
-
-  clearDraft: () => {
-    const nextDraft = createEmptyDraftTeam();
-    persistDraft(nextDraft);
-    set({ draftTeam: nextDraft });
-  },
-
-  saveDraft: () => {
-    const { draftTeam, teams } = get();
-    if (!draftTeam.name.trim() || draftTeam.pokemons.length === 0) return;
-
-    const existingIndex = teams.findIndex((team) => team.id === draftTeam.id);
-    let nextTeams;
-
-    if (existingIndex === -1) {
-      nextTeams = [...teams, draftTeam];
-    } else {
-      nextTeams = teams.map((team) =>
-        team.id === draftTeam.id
-          ? {
-              ...draftTeam,
-              updatedAt: Date.now(),
-            }
-          : team,
-      );
-    }
-
-    persistTeams(nextTeams);
-    set({ teams: nextTeams });
-  },
-
-  deleteTeam: (teamId) => {
-    const { teams, battleSelection } = get();
-    const nextTeams = teams.filter((team) => team.id !== teamId);
-
-    const nextBattleSelection = {
-      teamAId:
-        battleSelection.teamAId === teamId ? null : battleSelection.teamAId,
-      teamBId:
-        battleSelection.teamBId === teamId ? null : battleSelection.teamBId,
-    };
-
-    persistTeams(nextTeams);
-    set({ teams: nextTeams, battleSelection: nextBattleSelection });
-  },
-
-  getTeamById: (teamId) => {
-    const { teams } = get();
-    return teams.find((team) => team.id === teamId) || null;
-  },
-
-  selectBattleTeams: (teamAId, teamBId) => {
-    set({
-      battleSelection: {
-        teamAId,
-        teamBId,
+    const migrated = {
+      state: {
+        teams: Array.isArray(teams) ? teams : [],
+        draftTeam:
+          draftTeam && draftTeam.id && Array.isArray(draftTeam.pokemons)
+            ? draftTeam
+            : createEmptyDraftTeam(),
       },
-    });
-  },
+      version: 1,
+    };
 
-  canBattle: (teamAId, teamBId) => {
-    const { teams, battleSelection } = get();
+    localStorage.setItem(STORE_KEY, JSON.stringify(migrated));
+    localStorage.removeItem(LEGACY_DRAFT_KEY);
+    localStorage.removeItem(LEGACY_SAVED_KEY);
+  } catch {
+    // ignore: si los datos antiguos están corruptos, simplemente arrancamos limpios
+  }
+};
 
-    const finalTeamAId = teamAId ?? battleSelection.teamAId;
-    const finalTeamBId = teamBId ?? battleSelection.teamBId;
+migrateLegacyKeys();
 
-    if (!finalTeamAId || !finalTeamBId || finalTeamAId === finalTeamBId)
-      return false;
+export const useTeamsStore = create(
+  persist(
+    (set, get) => ({
+      draftTeam: createEmptyDraftTeam(),
+      teams: [],
+      // Estado transitorio: NO se persiste (ver `partialize`)
+      draftPokemonSort: "manual",
+      battleSelection: {
+        teamAId: null,
+        teamBId: null,
+      },
 
-    const teamA = teams.find((team) => team.id === finalTeamAId);
-    const teamB = teams.find((team) => team.id === finalTeamBId);
+      startDraft: (initial = {}) => {
+        set({
+          draftTeam: {
+            ...createEmptyDraftTeam(),
+            ...initial,
+            pokemons: Array.isArray(initial.pokemons)
+              ? initial.pokemons
+              : [],
+            updatedAt: Date.now(),
+          },
+        });
+      },
 
-    if (!teamA || !teamB) return false;
+      setDraftPokemonSort: (sort) => {
+        if (!isValidDraftSort(sort)) return;
+        set({ draftPokemonSort: sort });
+      },
 
-    return canStartBattle(teamA.pokemons, teamB.pokemons);
-  },
-}));
+      setDraftTeamName: (name) => {
+        set((state) => ({
+          draftTeam: {
+            ...state.draftTeam,
+            name,
+            updatedAt: Date.now(),
+          },
+        }));
+      },
+
+      addPokemon: (teamId, pokemon) => {
+        const { draftTeam, teams } = get();
+        if (!pokemon || teamId !== draftTeam.id) return;
+        if (draftTeam.pokemons.some((p) => p.id === pokemon.id)) return;
+        if (isPokemonInOtherTeam(teams, draftTeam.id, pokemon.id)) return;
+        if (draftTeam.pokemons.length >= 6) return;
+
+        set({
+          draftTeam: {
+            ...draftTeam,
+            pokemons: [...draftTeam.pokemons, pokemon],
+            updatedAt: Date.now(),
+          },
+        });
+      },
+
+      removePokemon: (teamId, pokemonId) => {
+        const { draftTeam } = get();
+        if (teamId !== draftTeam.id) return;
+
+        set({
+          draftTeam: {
+            ...draftTeam,
+            pokemons: removePokemonFromTeam(draftTeam.pokemons, pokemonId),
+            updatedAt: Date.now(),
+          },
+        });
+      },
+
+      reorderDraftPokemons: (teamId, startIndex, finishIndex) => {
+        const { draftTeam } = get();
+        if (teamId !== draftTeam.id) return;
+
+        const nextPokemons = reorderPokemons(
+          draftTeam.pokemons,
+          startIndex,
+          finishIndex,
+        );
+        if (nextPokemons === draftTeam.pokemons) return;
+
+        set({
+          draftTeam: {
+            ...draftTeam,
+            pokemons: nextPokemons,
+            updatedAt: Date.now(),
+          },
+        });
+      },
+
+      clearDraft: () => {
+        set({ draftTeam: createEmptyDraftTeam() });
+      },
+
+      saveDraft: () => {
+        const { draftTeam, teams } = get();
+        if (!draftTeam.name.trim() || draftTeam.pokemons.length === 0) return;
+
+        set({ teams: upsertTeam(teams, draftTeam) });
+      },
+
+      deleteTeam: (teamId) => {
+        const { teams, battleSelection } = get();
+
+        set({
+          teams: removeTeamById(teams, teamId),
+          battleSelection: clearBattleSelectionFor(battleSelection, teamId),
+        });
+      },
+
+      getTeamById: (teamId) => {
+        const { teams } = get();
+        return teams.find((team) => team.id === teamId) || null;
+      },
+
+      selectBattleTeams: (teamAId, teamBId) => {
+        set({
+          battleSelection: {
+            teamAId,
+            teamBId,
+          },
+        });
+      },
+
+      canBattle: (teamAId, teamBId) => {
+        const { teams, battleSelection } = get();
+
+        return canStartBattleBetween(
+          teams,
+          teamAId ?? battleSelection.teamAId,
+          teamBId ?? battleSelection.teamBId,
+        );
+      },
+    }),
+    {
+      name: STORE_KEY,
+      version: 1,
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        teams: state.teams,
+        draftTeam: state.draftTeam,
+      }),
+    },
+  ),
+);

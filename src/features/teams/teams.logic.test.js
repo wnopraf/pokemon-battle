@@ -1,9 +1,19 @@
 import {
   addPokemonToTeam,
-  removePokemonFromTeam,
-  clearTeam,
-  isTeamValid,
+  canStartBattleBetween,
   canStartBattle,
+  clearBattleSelectionFor,
+  clearTeam,
+  createEmptyDraftTeam,
+  createTeamId,
+  DRAFT_SORT_OPTIONS,
+  isPokemonInOtherTeam,
+  isTeamValid,
+  isValidDraftSort,
+  removePokemonFromTeam,
+  removeTeamById,
+  reorderPokemons,
+  upsertTeam,
 } from "./teams.logic";
 
 describe("teams.logic", () => {
@@ -234,6 +244,150 @@ describe("teams.logic", () => {
       const result = canStartBattle(teamA, teamB);
 
       expect(result).toBe(true);
+    });
+  });
+
+  describe("createTeamId", () => {
+    it("returns a unique id with the team prefix", () => {
+      const id1 = createTeamId();
+      const id2 = createTeamId();
+
+      expect(id1).toMatch(/^team-\d+-[a-z0-9]{6}$/);
+      expect(id1).not.toBe(id2);
+    });
+  });
+
+  describe("createEmptyDraftTeam", () => {
+    it("returns a draft with default empty values", () => {
+      const draft = createEmptyDraftTeam();
+
+      expect(draft).toMatchObject({ name: "", pokemons: [] });
+      expect(draft.id).toEqual(expect.any(String));
+      expect(draft.createdAt).toEqual(expect.any(Number));
+      expect(draft.updatedAt).toEqual(expect.any(Number));
+    });
+  });
+
+  describe("isValidDraftSort", () => {
+    it("accepts known sort options", () => {
+      DRAFT_SORT_OPTIONS.forEach((option) => {
+        expect(isValidDraftSort(option)).toBe(true);
+      });
+    });
+
+    it("rejects unknown options", () => {
+      expect(isValidDraftSort("speed")).toBe(false);
+      expect(isValidDraftSort(undefined)).toBe(false);
+    });
+  });
+
+  describe("isPokemonInOtherTeam", () => {
+    const teams = [
+      { id: "t1", pokemons: [{ id: 1 }, { id: 2 }] },
+      { id: "t2", pokemons: [{ id: 3 }] },
+    ];
+
+    it("returns true when pokemon exists in another team", () => {
+      expect(isPokemonInOtherTeam(teams, "t2", 1)).toBe(true);
+    });
+
+    it("ignores duplicates within the same draft team", () => {
+      expect(isPokemonInOtherTeam(teams, "t1", 1)).toBe(false);
+    });
+
+    it("returns false when pokemon is not in any team", () => {
+      expect(isPokemonInOtherTeam(teams, "t1", 999)).toBe(false);
+    });
+  });
+
+  describe("reorderPokemons", () => {
+    const list = [{ id: 1 }, { id: 2 }, { id: 3 }];
+
+    it("reorders elements between valid indices", () => {
+      const result = reorderPokemons(list, 0, 2);
+      expect(result.map((p) => p.id)).toEqual([2, 3, 1]);
+    });
+
+    it("returns the same reference when indices are invalid", () => {
+      expect(reorderPokemons(list, 0, 5)).toBe(list);
+      expect(reorderPokemons(list, -1, 1)).toBe(list);
+      expect(reorderPokemons(list, 0, 0)).toBe(list);
+      expect(reorderPokemons(list, "0", 1)).toBe(list);
+    });
+
+    it("does not mutate the input array", () => {
+      reorderPokemons(list, 0, 2);
+      expect(list.map((p) => p.id)).toEqual([1, 2, 3]);
+    });
+  });
+
+  describe("upsertTeam", () => {
+    const teamA = { id: "t1", name: "A", pokemons: [], updatedAt: 1 };
+    const teamB = { id: "t2", name: "B", pokemons: [], updatedAt: 1 };
+
+    it("appends a new team when id is not present", () => {
+      const result = upsertTeam([teamA], teamB);
+      expect(result).toHaveLength(2);
+      expect(result[1]).toBe(teamB);
+    });
+
+    it("replaces an existing team and refreshes updatedAt", () => {
+      const updated = { ...teamA, name: "Renamed" };
+      const result = upsertTeam([teamA, teamB], updated);
+
+      expect(result).toHaveLength(2);
+      expect(result[0]).toMatchObject({ id: "t1", name: "Renamed" });
+      expect(result[0].updatedAt).toBeGreaterThanOrEqual(teamA.updatedAt);
+    });
+  });
+
+  describe("removeTeamById", () => {
+    it("filters out the team with the given id", () => {
+      const teams = [{ id: "t1" }, { id: "t2" }];
+      expect(removeTeamById(teams, "t1")).toEqual([{ id: "t2" }]);
+    });
+
+    it("returns the same content when id does not exist", () => {
+      const teams = [{ id: "t1" }];
+      expect(removeTeamById(teams, "missing")).toEqual(teams);
+    });
+  });
+
+  describe("clearBattleSelectionFor", () => {
+    it("clears slots that match the deleted team id", () => {
+      const result = clearBattleSelectionFor(
+        { teamAId: "t1", teamBId: "t2" },
+        "t1",
+      );
+      expect(result).toEqual({ teamAId: null, teamBId: "t2" });
+    });
+
+    it("leaves selection untouched when id does not match", () => {
+      const selection = { teamAId: "t1", teamBId: "t2" };
+      expect(clearBattleSelectionFor(selection, "t9")).toEqual(selection);
+    });
+  });
+
+  describe("canStartBattleBetween", () => {
+    const teams = [
+      { id: "t1", pokemons: [{ id: 1 }] },
+      { id: "t2", pokemons: [{ id: 2 }] },
+      { id: "empty", pokemons: [] },
+    ];
+
+    it("returns true for two distinct non-empty teams", () => {
+      expect(canStartBattleBetween(teams, "t1", "t2")).toBe(true);
+    });
+
+    it("returns false when ids are missing or equal", () => {
+      expect(canStartBattleBetween(teams, null, "t2")).toBe(false);
+      expect(canStartBattleBetween(teams, "t1", null)).toBe(false);
+      expect(canStartBattleBetween(teams, "t1", "t1")).toBe(false);
+    });
+
+    it("returns false when a team is missing or empty", () => {
+      expect(canStartBattleBetween(teams, "t1", "missing")).toBe(false);
+      expect(canStartBattleBetween(teams, "t1", "empty")).toBe(false);
     });
   });
 });
