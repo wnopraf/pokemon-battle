@@ -7,12 +7,18 @@ import TeamBuilderPage from "@/pages/TeamBuilderPage";
 import BattleSetupPage from "@/pages/BattleSetupPage";
 import BattlePage from "@/pages/BattlePage";
 import BattleResultPage from "@/pages/BattleResultPage";
+import BattleHistoryPage from "@/pages/BattleHistoryPage";
+import HomePage from "@/pages/HomePage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
     children: [
+      {
+        index: true,
+        element: <HomePage />,
+      },
       {
         path: "teams",
         element: <TeamsPage />,
@@ -37,6 +43,10 @@ export const router = createBrowserRouter([
       {
         path: "battle/result",
         element: <BattleResultPage />,
+      },
+      {
+        path: "battle-history",
+        element: <BattleHistoryPage />,
       },
     ],
   },

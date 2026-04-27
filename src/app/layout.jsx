@@ -2,13 +2,14 @@ import {
   ArrowLeft,
   Bolt,
   Flame,
+  History,
   LayoutGrid,
   Moon,
   User,
   UserCircle2,
 } from "lucide-react";
 import { useState } from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import pokeBallIcon from "@/assets/poke-ball.svg";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,7 @@ import { cn } from "@/lib/utils";
 const mainNavItems = [
   { to: "/teams", label: "Equipos", icon: LayoutGrid },
   { to: "/battle", label: "Combate", icon: Bolt },
+  { to: "/battle-history", label: "Historial", icon: History },
 ];
 
 const secondaryNavItems = [{ label: "Perfil", icon: User }];
@@ -39,7 +41,9 @@ export default function AppLayout() {
   const navigate = useNavigate();
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState(false);
   const pathname = location.pathname.replace(/\/+$/, "") || "/";
-  const showBackButton = !["/", "/teams", "/battle"].includes(pathname);
+  const showBackButton = !["/", "/teams", "/battle", "/battle-history"].includes(
+    pathname,
+  );
   const isCreatingTeam = pathname === "/teams/new";
   const hasDraftChanges =
     Boolean(draftTeam?.name?.trim()) || (draftTeam?.pokemons?.length ?? 0) > 0;
@@ -81,12 +85,15 @@ export default function AppLayout() {
     <div className="min-h-screen bg-(--gray-100) p-2 md:p-3">
       <div className="flex min-h-[calc(100vh-1rem)] rounded-2xl border border-(--gray-200) bg-white shadow-sm md:min-h-[calc(100vh-1.5rem)]">
         <aside className="hidden w-[220px] border-r border-(--gray-200) bg-white px-3 py-4 md:flex md:flex-col">
-          <div className="mb-5 flex items-center gap-2 px-2">
+          <Link
+            to="/"
+            className="mb-5 flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-(--gray-50)"
+          >
             <img src={pokeBallIcon} alt="PokeBattle" className="size-5" />
             <p className="text-sm font-semibold text-(--gray-900)">
               PokeBattle
             </p>
-          </div>
+          </Link>
 
           <nav className="space-y-1">
             {mainNavItems.map(({ to, label, icon: Icon }) => (

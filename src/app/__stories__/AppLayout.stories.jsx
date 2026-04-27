@@ -4,9 +4,11 @@ import { RouterProvider, createMemoryRouter } from "react-router-dom";
 
 import AppLayout from "@/app/layout";
 import { useTeamsStore } from "@/features/teams/teams.store";
+import BattleHistoryPage from "@/pages/BattleHistoryPage";
 import { BattlePage } from "@/pages/BattlePage";
 import { BattleResultPage } from "@/pages/BattleResultPage";
 import { BattleSetupPage } from "@/pages/BattleSetupPage";
+import HomePage from "@/pages/HomePage";
 import TeamBuilderPage from "@/pages/TeamBuilderPage";
 import TeamsPage from "@/pages/TeamsPage";
 
@@ -145,6 +147,10 @@ function AppSandbox({ initialPath = "/teams" }) {
         element: <AppLayout />,
         children: [
           {
+            index: true,
+            element: <HomePage />,
+          },
+          {
             path: "teams",
             element: <TeamsPage />,
           },
@@ -167,6 +173,10 @@ function AppSandbox({ initialPath = "/teams" }) {
           {
             path: "battle/result",
             element: <BattleResultPage />,
+          },
+          {
+            path: "battle-history",
+            element: <BattleHistoryPage />,
           },
         ],
       },
